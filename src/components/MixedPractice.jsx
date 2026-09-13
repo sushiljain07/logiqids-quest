@@ -3,17 +3,19 @@ import Header from "./Header.jsx";
 import QuestionCard from "./QuestionCard.jsx";
 import { CATEGORIES } from "../content/categories.js";
 import { TOPICS_BY_CATEGORY } from "../content/index.js";
+import { shuffle, randomInt } from "../lib/utils.js";
 
 const QUESTION_COUNT = 10;
 
 function buildSet(categoryId) {
   const topics = categoryId === "mixed"
-    ? CATEGORIES.flatMap(c => TOPICS_BY_CATEGORY[c.id])
-    : TOPICS_BY_CATEGORY[categoryId];
+    ? shuffle(CATEGORIES.flatMap(c => TOPICS_BY_CATEGORY[c.id]))
+    : shuffle(TOPICS_BY_CATEGORY[categoryId]);
   const pool = [];
   while (pool.length < QUESTION_COUNT) {
     const topic = topics[pool.length % topics.length];
-    pool.push(topic.getYourTurn()[0]);
+    const candidates = topic.getYourTurn();
+    pool.push(candidates[randomInt(0, candidates.length - 1)]);
   }
   return pool;
 }
