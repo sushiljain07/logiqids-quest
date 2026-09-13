@@ -4,6 +4,7 @@ import QuestionCard from "./QuestionCard.jsx";
 import { TOPICS } from "../content/index.js";
 import { scoreMockTest } from "../lib/scoring.js";
 import { addLeaderboardEntry } from "../lib/storage.js";
+import { shuffle } from "../lib/utils.js";
 
 const TOTAL_QUESTIONS = 35;
 const LQ_CHAMP_COUNT = 7;
@@ -15,7 +16,9 @@ export function buildMockTestQuestions() {
   TOPICS.forEach(topic => {
     pool.push(...topic.getTryTogether(), ...topic.getYourTurn(), ...topic.getYourTurn());
   });
-  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, TOTAL_QUESTIONS);
+  // Must be a uniform shuffle: a random comparator sort left the pool's trailing categories
+  // under-represented by about a third in the 35 questions drawn from the 150-question pool.
+  const shuffled = shuffle(pool).slice(0, TOTAL_QUESTIONS);
   const byDifficulty = [...shuffled].sort((a, b) => DIFFICULTY_RANK[b.difficulty] - DIFFICULTY_RANK[a.difficulty]);
   const champIds = new Set(byDifficulty.slice(0, LQ_CHAMP_COUNT).map(q => q.id));
   return shuffled.map(q => ({ ...q, isLQChamp: champIds.has(q.id) }));
