@@ -1,0 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap');
+:root{font-family:Nunito,system-ui,sans-serif;color:#25233a;background:#fff9f0;font-synthesis:none;--ink:#25233a;--muted:#77758a;--orange:#ff7a3d;--gold:#f5b73c;--cream:#fff9f0;--card:#fff;--line:#ece7df;--green:#20a66a;--red:#e45b5b;--purple:#6b5bd6}
+*{box-sizing:border-box}body{margin:0;background:var(--cream)}button{font:inherit;cursor:pointer;border:0;color:inherit}
+.app{min-height:100vh;position:relative;overflow-x:hidden}
+.ambient{position:absolute;border-radius:50%;filter:blur(1px);opacity:.35;pointer-events:none}
+.a1{width:360px;height:360px;background:#ffe3c5;top:-150px;right:-80px}
+.a2{width:280px;height:280px;background:#e7ddff;bottom:-130px;left:-100px}
+.home{max-width:1120px;margin:auto;padding:40px 24px}
