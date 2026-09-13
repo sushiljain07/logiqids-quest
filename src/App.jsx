@@ -38,6 +38,7 @@ export default function App() {
         <SkillMap
           progress={loadProgress()}
           avatar={avatar}
+          playerName={playerName}
           onOpenTopic={openTopic}
           onOpenMixedPractice={() => setScreen("mixedPractice")}
           onOpenMockTest={() => setScreen("mockTest")}

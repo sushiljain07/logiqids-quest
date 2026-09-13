@@ -18,6 +18,14 @@ describe("SkillMap (static render)", () => {
     expect(html).toContain("Spot the Difference");
   });
 
+  it("greets the player by avatar and name", () => {
+    const html = renderToStaticMarkup(
+      <SkillMap progress={{}} avatar="🦁" playerName="Aanya" onOpenTopic={() => {}} onOpenMixedPractice={() => {}}
+        onOpenMockTest={() => {}} onOpenProgress={() => {}} onOpenLeaderboard={() => {}} />
+    );
+    expect(html).toContain("Ready to learn something fun today, 🦁 Aanya?");
+  });
+
   it("locks the 2nd and 3rd topic of a category until the previous one is mastered", () => {
     const html = renderToStaticMarkup(
       <SkillMap progress={{}} avatar="🦁" onOpenTopic={() => {}} onOpenMixedPractice={() => {}}

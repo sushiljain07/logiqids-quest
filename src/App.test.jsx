@@ -24,5 +24,6 @@ describe("App (static render)", () => {
     const { default: App } = await import("./App.jsx");
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain("Analytical Thinking");
+    expect(html).toContain("Aanya?"); // the greeting uses the stored player name
   });
 });

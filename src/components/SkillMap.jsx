@@ -4,11 +4,11 @@ import { CATEGORIES } from "../content/categories.js";
 import { TOPICS_BY_CATEGORY } from "../content/index.js";
 import { isTopicEverMastered } from "../lib/scoring.js";
 
-export default function SkillMap({ progress, avatar, onOpenTopic, onOpenMixedPractice, onOpenMockTest, onOpenProgress, onOpenLeaderboard, soundOn = true, onToggleSound = () => {} }) {
+export default function SkillMap({ progress, avatar, playerName = "", onOpenTopic, onOpenMixedPractice, onOpenMockTest, onOpenProgress, onOpenLeaderboard, soundOn = true, onToggleSound = () => {} }) {
   return (
     <main className="skillMap">
       <div className="skillMapHero">
-        <h1>Ready to learn something fun today, {avatar}?</h1>
+        <h1>Ready to learn something fun today, {avatar}{playerName ? ` ${playerName}` : ""}?</h1>
         <p>Pick a topic below to start a lesson.</p>
       </div>
       {CATEGORIES.map(cat => (
