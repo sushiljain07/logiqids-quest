@@ -3,7 +3,7 @@ import { shuffle } from "../../lib/utils.js";
 const COMPOUND_WORDS = [
   ["sun", "flower"], ["foot", "ball"], ["rain", "bow"], ["note", "book"],
   ["butter", "fly"], ["tooth", "brush"], ["bed", "room"], ["sand", "castle"],
-  ["star", "fish"], ["air", "port"], ["back", "pack"], ["basket", "ball"],
+  ["straw", "berry"], ["air", "port"], ["back", "pack"], ["basket", "ball"],
 ];
 
 const VALID_PAIR_SET = new Set(COMPOUND_WORDS.map(([h, t]) => `${h}+${t}`));
