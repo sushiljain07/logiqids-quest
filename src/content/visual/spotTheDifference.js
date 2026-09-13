@@ -1,4 +1,4 @@
-import { shuffle } from "../../lib/utils.js";
+import { shuffle, randomInt } from "../../lib/utils.js";
 import { buildDiffPair } from "../../lib/figures.js";
 
 const BASE_SCENE = [
@@ -18,13 +18,15 @@ const CHANGE_POOL = [
 ];
 
 export function generateSpotDifferenceQuestion(difficulty = "medium", index = 0) {
-  const k = difficulty === "hard" ? 4 : difficulty === "medium" ? 3 : 2;
+  const kRanges = { easy: [2, 3], medium: [3, 4], hard: [4, 5] };
+  const [kMin, kMax] = kRanges[difficulty] || kRanges.medium;
+  const k = randomInt(kMin, kMax);
   const changes = shuffle(CHANGE_POOL).slice(0, k);
   const { before, after } = buildDiffPair(BASE_SCENE, changes);
   const answer = changes.length;
   const howTo = `Compare each shape one at a time: its color, size, and position. There ${answer === 1 ? "is 1 difference" : `are ${answer} differences`} between the two pictures.`;
 
-  const nearby = [...new Set([answer - 1, answer + 1, answer + 2].filter(v => v > 0 && v !== answer))];
+  const nearby = [...new Set([answer - 3, answer - 2, answer - 1, answer + 1, answer + 2, answer + 3].filter(v => v >= 0))];
   const distractors = shuffle(nearby).slice(0, 3);
   while (distractors.length < 3) distractors.push(answer + distractors.length + 3);
 
