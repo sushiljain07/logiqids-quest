@@ -12,11 +12,24 @@ export function generateSeriesQuestion(difficulty = "medium", index = 0) {
   const terms = [start, start + step, start + step * 2, start + step * 3];
   const answer = start + step * 4;
 
+  // Distractors are drawn from a symmetric pool on BOTH sides of the answer so that the
+  // answer's rank among the sorted options varies. (An earlier version always used
+  // {answer+step, answer-step, terms[0]}, which made the answer the 2nd-largest option
+  // 100% of the time — trivially guessable without understanding the pattern.)
+  const candidatePool = [
+    answer - 3 * step, answer - 2 * step, answer - step,
+    answer + step, answer + 2 * step, answer + 3 * step,
+  ].filter(v => v > 0 && v !== answer);
+  const distractorValues = shuffle(candidatePool).slice(0, 3);
+  while (distractorValues.length < 3) {
+    // Defensive fallback only: with answer = start + 4*step, start >= 1 and step >= 2 all six
+    // pool entries are positive and pairwise distinct, so this never triggers in practice.
+    distractorValues.push(answer + step * (4 + distractorValues.length));
+  }
+
   const candidates = shuffle([
     { value: answer, isAnswer: true },
-    { value: answer + step, reason: "adds one extra step instead of stopping at the pattern" },
-    { value: answer - step, reason: "stops one step too early — that's the term before the answer" },
-    { value: terms[0], reason: "repeats the very first number instead of continuing the pattern" },
+    ...distractorValues.map(value => ({ value, isAnswer: false })),
   ]);
 
   const letters = ["A", "B", "C", "D"];
@@ -27,7 +40,7 @@ export function generateSeriesQuestion(difficulty = "medium", index = 0) {
   const mistakes = {};
   candidates.forEach((c, i) => {
     if (!c.isAnswer) {
-      mistakes[letters[i]] = `You picked ${c.value}, which ${c.reason}. ${howTo}`;
+      mistakes[letters[i]] = `You picked ${c.value}, but ${howTo} So the next number is ${answer}, not ${c.value}.`;
     }
   });
 

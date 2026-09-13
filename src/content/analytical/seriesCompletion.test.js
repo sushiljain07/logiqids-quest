@@ -23,6 +23,25 @@ describe("generateSeriesQuestion", () => {
     }
   });
 
+  it("does not always place the answer at the same sorted rank (not guessable by position)", () => {
+    const rankCounts = [0, 0, 0, 0];
+    const SAMPLES = 300;
+    for (let i = 0; i < SAMPLES; i++) {
+      const q = generateSeriesQuestion(["easy", "medium", "hard"][i % 3], i);
+      const values = q.options.map(o => Number(o.label));
+      values.forEach(v => expect(v).toBeGreaterThan(0));
+      const answerValue = Number(q.options.find(o => o.id === q.answerId).label);
+      const rank = [...values].sort((a, b) => a - b).indexOf(answerValue);
+      rankCounts[rank] += 1;
+    }
+    // eslint-disable-next-line no-console
+    console.log("series answer sorted-rank distribution (n=%d): %o", SAMPLES, rankCounts);
+    const ranksObserved = rankCounts.filter(c => c > 0).length;
+    expect(ranksObserved).toBeGreaterThanOrEqual(2);
+    // The old bug put the answer at rank 2 every single time.
+    expect(rankCounts[2]).toBeLessThan(SAMPLES);
+  });
+
   it("harder difficulty uses a bigger step on average", () => {
     const steps = (difficulty) => {
       let total = 0;
