@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Check, X, Volume2 } from "lucide-react";
 import FigureSVG from "./FigureSVG.jsx";
 import { speak, stopSpeech } from "../lib/speech.js";
 
 export default function QuestionCard({ question, onAnswered, soundOn = true, withholdExplanation = false }) {
   const [selected, setSelected] = useState(null);
+  const hasSubmittedRef = useRef(false);
   useEffect(() => () => stopSpeech(), []);
 
   const answered = selected !== null;
@@ -13,6 +14,8 @@ export default function QuestionCard({ question, onAnswered, soundOn = true, wit
   function choose(optionId) {
     if (answered) return;
     if (withholdExplanation) {
+      if (hasSubmittedRef.current) return;
+      hasSubmittedRef.current = true;
       onAnswered(optionId === question.answerId, optionId);
       return;
     }
@@ -30,6 +33,8 @@ export default function QuestionCard({ question, onAnswered, soundOn = true, wit
   }
 
   function continueOn() {
+    if (hasSubmittedRef.current) return;
+    hasSubmittedRef.current = true;
     stopSpeech();
     onAnswered(isCorrect, selected);
   }
