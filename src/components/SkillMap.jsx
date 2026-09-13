@@ -2,7 +2,7 @@ import React from "react";
 import { Star, ListOrdered, Timer, BarChart3 } from "lucide-react";
 import { CATEGORIES } from "../content/categories.js";
 import { TOPICS_BY_CATEGORY } from "../content/index.js";
-import { isTopicMastered } from "../lib/scoring.js";
+import { isTopicEverMastered } from "../lib/scoring.js";
 
 export default function SkillMap({ progress, avatar, onOpenTopic, onOpenMixedPractice, onOpenMockTest, onOpenProgress, onOpenLeaderboard }) {
   return (
@@ -17,9 +17,9 @@ export default function SkillMap({ progress, avatar, onOpenTopic, onOpenMixedPra
           <div className="topicRow">
             {TOPICS_BY_CATEGORY[cat.id].map((topic, i) => {
               const rec = progress[topic.id];
-              const mastered = isTopicMastered(rec);
+              const mastered = isTopicEverMastered(rec);
               const prevTopic = TOPICS_BY_CATEGORY[cat.id][i - 1];
-              const locked = i > 0 && !isTopicMastered(progress[prevTopic?.id]);
+              const locked = i > 0 && !isTopicEverMastered(progress[prevTopic?.id]);
               return (
                 <button key={topic.id} data-topic-id={topic.id}
                   className={"topicNode " + (mastered ? "mastered" : locked ? "locked" : "unlocked")}

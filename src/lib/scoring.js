@@ -5,6 +5,12 @@ export function isTopicMastered(record) {
   return correct >= 3 && correct / attempts >= 0.75;
 }
 
+// Sticky counterpart to isTopicMastered: reads the persisted flag set the first time the
+// threshold was crossed, so unlocks and mastery stars never regress after more practice.
+export function isTopicEverMastered(record) {
+  return !!record?.everMastered;
+}
+
 export function scoreMockTest(answers) {
   let raw = 0, maxRaw = 0, correctCount = 0, wrongCount = 0, unansweredCount = 0;
   for (const a of answers) {

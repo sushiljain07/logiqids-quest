@@ -26,4 +26,15 @@ describe("SkillMap (static render)", () => {
     // Odd One Out is the 2nd analytical topic, should render as locked with no attempts yet
     expect(html).toMatch(/oddOneOut[\s\S]*locked|locked[\s\S]*oddOneOut/i);
   });
+
+  it("keeps the next topic unlocked once the previous one was ever mastered, even if the live ratio has dropped", () => {
+    // 5/8 = 62.5% is below the live mastery threshold, but mastery was already earned.
+    const progress = { seriesCompletion: { attempts: 8, correct: 5, everMastered: true } };
+    const html = renderToStaticMarkup(
+      <SkillMap progress={progress} avatar="🦁" onOpenTopic={() => {}} onOpenMixedPractice={() => {}}
+        onOpenMockTest={() => {}} onOpenProgress={() => {}} onOpenLeaderboard={() => {}} />
+    );
+    expect(html).toMatch(/data-topic-id="oddOneOut" class="topicNode unlocked"/);
+    expect(html).toMatch(/data-topic-id="seriesCompletion" class="topicNode mastered"/);
+  });
 });

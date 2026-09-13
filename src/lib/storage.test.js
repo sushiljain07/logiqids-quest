@@ -26,13 +26,25 @@ describe("storage", () => {
     expect(loadJSON("k", null)).toEqual({ hello: "world" });
   });
 
-  it("recordTopicAttempt accumulates attempts/correct", async () => {
+  it("recordTopicAttempt accumulates attempts/correct and sets a sticky everMastered flag", async () => {
     const { recordTopicAttempt, loadProgress } = await import("./storage.js");
     recordTopicAttempt("seriesCompletion", true);
     recordTopicAttempt("seriesCompletion", false);
     const rec = recordTopicAttempt("seriesCompletion", true);
-    expect(rec).toEqual({ attempts: 3, correct: 2 });
-    expect(loadProgress().seriesCompletion).toEqual({ attempts: 3, correct: 2 });
+    // 2 correct out of 3 — under the threshold, so not mastered yet
+    expect(rec).toEqual({ attempts: 3, correct: 2, everMastered: false });
+    expect(loadProgress().seriesCompletion).toEqual({ attempts: 3, correct: 2, everMastered: false });
+
+    // 3 correct out of 4 = 75% — threshold crossed
+    const mastered = recordTopicAttempt("seriesCompletion", true);
+    expect(mastered).toEqual({ attempts: 4, correct: 3, everMastered: true });
+
+    // Two more wrong answers drop the live ratio to 3/6 = 50%, but mastery stays earned
+    recordTopicAttempt("seriesCompletion", false);
+    const after = recordTopicAttempt("seriesCompletion", false);
+    expect(after.correct / after.attempts).toBeLessThan(0.75);
+    expect(after).toEqual({ attempts: 6, correct: 3, everMastered: true });
+    expect(loadProgress().seriesCompletion.everMastered).toBe(true);
   });
 
   it("addLeaderboardEntry keeps only top 5 by pct desc", async () => {

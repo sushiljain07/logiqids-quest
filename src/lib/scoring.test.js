@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isTopicMastered, scoreMockTest } from "./scoring.js";
+import { isTopicMastered, isTopicEverMastered, scoreMockTest } from "./scoring.js";
 
 describe("isTopicMastered", () => {
   it("requires at least 3 correct and 75% accuracy", () => {
@@ -7,6 +7,20 @@ describe("isTopicMastered", () => {
     expect(isTopicMastered({ attempts: 4, correct: 2 })).toBe(false);
     expect(isTopicMastered({ attempts: 2, correct: 2 })).toBe(false); // fewer than 3 correct
     expect(isTopicMastered(undefined)).toBe(false);
+  });
+});
+
+describe("isTopicEverMastered", () => {
+  it("stays true once earned, even if the live ratio has since dropped", () => {
+    const record = { attempts: 8, correct: 5, everMastered: true };
+    expect(isTopicMastered(record)).toBe(false); // 5/8 = 62.5%, below the live threshold
+    expect(isTopicEverMastered(record)).toBe(true);
+  });
+
+  it("is false when the flag is absent or false, and for a missing record", () => {
+    expect(isTopicEverMastered({ attempts: 4, correct: 3 })).toBe(false);
+    expect(isTopicEverMastered({ attempts: 4, correct: 3, everMastered: false })).toBe(false);
+    expect(isTopicEverMastered(undefined)).toBe(false);
   });
 });
 

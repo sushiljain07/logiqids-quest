@@ -25,9 +25,14 @@ export function loadProgress() {
 
 export function recordTopicAttempt(topicId, correct) {
   const progress = loadProgress();
-  const rec = progress[topicId] || { attempts: 0, correct: 0 };
+  const rec = progress[topicId] || { attempts: 0, correct: 0, everMastered: false };
   rec.attempts += 1;
   if (correct) rec.correct += 1;
+  // Sticky: mastery earned once is never taken away, even if later practice drags the
+  // lifetime ratio back below the threshold. Mirrors isTopicMastered's threshold.
+  if (!rec.everMastered && rec.correct >= 3 && rec.correct / rec.attempts >= 0.75) {
+    rec.everMastered = true;
+  }
   progress[topicId] = rec;
   saveJSON(KEYS.PROGRESS, progress);
   return rec;
