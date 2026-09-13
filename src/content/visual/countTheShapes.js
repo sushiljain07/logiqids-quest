@@ -16,7 +16,7 @@ function fanInstance(difficulty) {
 export function generateCountShapesQuestion(difficulty = "medium", index = 0) {
   const built = Math.random() < 0.5 ? gridInstance(difficulty) : fanInstance(difficulty);
   const { answer, howTo, shapeWord } = built;
-  const nearby = new Set([answer - 3, answer - 2, answer - 1, answer + 1, answer + 2, answer + 3].filter(v => v > 0));
+  const nearby = new Set([answer - 3, answer - 2, answer - 1, answer + 1, answer + 2, answer + 3].filter(v => v >= 0));
   const distractors = shuffle([...nearby]).slice(0, 3);
   while (distractors.length < 3) distractors.push(answer + distractors.length + 4);
 
