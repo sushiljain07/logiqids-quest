@@ -6,3 +6,123 @@
 .a1{width:360px;height:360px;background:#ffe3c5;top:-150px;right:-80px}
 .a2{width:280px;height:280px;background:#e7ddff;bottom:-130px;left:-100px}
 .home{max-width:1120px;margin:auto;padding:40px 24px}
+button{font:inherit;cursor:pointer;border:0;color:inherit}
+.header{height:70px;display:flex;align-items:center;gap:14px;max-width:1050px;margin:auto;padding:0 20px}
+.iconBtn{width:40px;height:40px;border-radius:12px;background:#fff;border:1px solid var(--line);display:grid;place-items:center}
+.brand{display:flex;align-items:center;gap:9px;margin-right:auto}
+.brandMark{width:31px;height:31px;border-radius:10px;background:var(--purple);color:#fff;display:grid;place-items:center;font-size:16px}
+.brand b,.brand small{display:block}
+.brand b{font-family:"Baloo 2";font-size:17px}
+.brand small{font-size:9px;color:#999}
+.avatarChip{width:36px;height:36px;border-radius:12px;background:#f3f0ff;display:grid;place-items:center;font-size:19px;border:1px solid var(--line)}
+
+.avatarPickerBlock{margin-bottom:10px}
+.nameInput{width:100%;background:#faf8f4;border:2px solid #eeeae3;border-radius:14px;padding:13px 16px;font-size:15px;font-weight:700;margin:10px 0 16px;color:var(--ink)}
+.nameInput:focus{outline:none;border-color:var(--purple)}
+.avatarPicker{display:grid;grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:10px;margin-bottom:10px}
+.avatarBtn{background:#faf8f4;border:2px solid transparent;border-radius:16px;font-size:26px;padding:10px 0}
+.avatarBtn.active{background:#f3f0ff;border-color:var(--purple)}
+
+.skillMap{max-width:900px;margin:auto;padding:30px 20px 60px}
+.skillMapHero h1{font-family:"Baloo 2";font-size:clamp(24px,5vw,34px);margin:0 0 6px}
+.skillMapHero p{color:var(--muted);margin:0 0 24px}
+.categoryZone{background:#fff;border:1px solid var(--line);border-radius:24px;padding:20px;margin-bottom:16px;border-left:6px solid var(--zoneColor)}
+.categoryZone h2{font-family:"Baloo 2";font-size:19px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+.categoryIcon{font-size:20px}
+.topicRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.topicNode{display:flex;flex-direction:column;align-items:center;gap:6px;background:#faf9f6;border:2px solid #eeeae3;border-radius:16px;padding:16px 10px;font-weight:800;font-size:13px;text-align:center}
+.topicNode.mastered{background:#fff8df;border-color:#f0d989}
+.topicNode.locked{opacity:.5;cursor:not-allowed}
+.topicNodeIcon{font-size:22px}
+.skillMapFooter{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.navChip{flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:7px;background:#faf8f4;border:1px solid var(--line);border-radius:13px;padding:12px;font-weight:800;font-size:13px;color:var(--purple)}
+
+.topicView{max-width:760px;margin:auto;padding:0 20px 40px}
+.topicHeaderRow h1{font-family:"Baloo 2";font-size:clamp(20px,5vw,28px);text-align:center}
+.phaseLabel{text-align:center;color:var(--muted);font-weight:800;font-size:13px;margin-bottom:10px}
+
+.teachCard{background:#fff;border:1px solid var(--line);border-radius:24px;padding:30px;text-align:center}
+.teachProgress{color:#9a96a1;font-size:12px;font-weight:800;margin-bottom:10px}
+.teachVisual{margin:10px auto}
+.teachCaption{font-size:18px;line-height:1.5;margin:16px 0 24px}
+
+.questionCard{background:#fff;border:1px solid var(--line);border-radius:24px;padding:26px;text-align:center}
+.questionFigure{display:flex;justify-content:center;margin-bottom:12px}
+.questionCard h2{font-family:"Baloo 2";font-size:clamp(18px,4.5vw,24px);margin:0 0 20px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left}
+.option{min-height:56px;background:#faf9f6;border:2px solid #eeeae3;border-radius:16px;padding:10px 13px;display:flex;align-items:center;gap:12px;font-weight:800}
+.option.right{border-color:#63c795;background:#effaf4;color:#16794b}
+.option.wrong{border-color:#eb8c8c;background:#fff1f1;color:#aa3f3f}
+.letter{width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #e7e2da;display:grid;place-items:center;font-size:12px;color:#8b8791}
+.explanationCard{display:flex;align-items:center;gap:10px;text-align:left;margin-top:18px;padding:13px 15px;border-radius:15px}
+.explanationCard.good{background:#effaf4}
+.explanationCard.bad{background:#fff4e9}
+.explanationIcon{font-size:22px}
+.replayBtn{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px}
+.hintBtn{background:transparent;color:var(--purple);font-size:12px;font-weight:900;margin-top:14px;display:block;margin-left:auto;margin-right:auto}
+
+.topicDoneCard{text-align:center;background:#fff;border:1px solid var(--line);border-radius:24px;padding:34px}
+.topicDoneIcon{font-size:50px}
+
+.startBtn{margin-top:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--ink);color:#fff;padding:16px 20px;border-radius:16px;font-weight:900;font-size:16px}
+.nextBtn{width:100%;margin-top:15px;border-radius:14px;background:var(--purple);color:#fff;padding:14px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:8px}
+
+.confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:30px;padding:24px;box-shadow:0 22px 55px #493b2612}
+.panel h2{font-family:"Baloo 2";font-size:22px;margin:0 0 16px}
+.listPanel{max-width:650px;margin:20px auto}
+.emptyState{background:#faf8f4;border-radius:14px;padding:20px;text-align:center;color:var(--muted)}
+
+.progressCategory{margin-bottom:20px}
+.progressCategory h3{font-size:15px;margin:0 0 8px;display:flex;justify-content:space-between}
+.progressCount{color:var(--muted);font-weight:700}
+.stateGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stateChip{background:#faf8f4;border-radius:12px;padding:10px 12px;font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:7px}
+.stateChip.mastered{background:#fff8df;color:#8a6c1f}
+.stateChip.tried{background:#f3f0ff;color:#5c4fae}
+
+.leaderRow{display:flex;align-items:center;gap:12px;padding:12px 6px;border-bottom:1px solid #f1ede8}
+.leaderRank{width:28px;text-align:center;font-weight:900}
+.leaderAvatar{font-size:22px}
+.leaderInfo{flex:1}
+.leaderInfo b{display:block;font-size:14px}
+.leaderInfo small{color:var(--muted);font-size:11px}
+.leaderPct{font-weight:900;color:var(--orange)}
+
+.quiz,.result{max-width:800px;margin:auto;padding-bottom:30px}
+.quizTop{display:flex;justify-content:space-between;align-items:center;margin:20px}
+.eyebrow{font-size:11px;color:#8d8997;font-weight:900}
+.timer{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-weight:900;font-size:13px}
+
+.resultHero{text-align:center;padding:30px 20px}
+.resultHero h1{font-family:"Baloo 2";font-size:clamp(24px,6vw,34px)}
+.scoreCircle{width:130px;height:130px;border-radius:50%;border:10px solid #ded1ff;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:16px auto}
+.scoreCircle strong{font-family:"Baloo 2";font-size:36px}
+.resultStats{display:flex;justify-content:center;gap:24px;margin-top:10px}
+.resultStats b{display:block;font-size:18px}
+.resultStats span{font-size:10px;color:#96919d;text-transform:uppercase}
+
+.review,.reviewRow{text-align:left}
+.reviewRow{display:flex;gap:12px;padding:10px 2px;border-bottom:1px solid #f1ede8}
+.miniRight,.miniWrong{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:12px}
+.miniRight{background:#dcf5e8;color:#16804f}
+.miniWrong{background:#ffe4e4;color:#b04444}
+
+.modes{display:grid;gap:10px;margin-bottom:16px}
+.modeBtn{display:flex;align-items:center;text-align:left;gap:14px;background:#faf8f4;border:2px solid transparent;border-radius:17px;padding:13px 15px}
+.levelIcon{font-size:22px}
+
+@media(max-width:700px){
+  .options{grid-template-columns:1fr}
+  .resultStats{gap:14px}
+  .header{flex-wrap:wrap;height:auto;padding:12px 16px;gap:8px}
+  .quizTop{flex-wrap:wrap;gap:10px;margin:16px}
+  .questionCard,.teachCard,.topicDoneCard{padding:18px}
+  .skillMapFooter{flex-direction:column}
+  .categoryZone{padding:14px}
+}
+@media(max-width:400px){
+  .avatarPicker{grid-template-columns:repeat(4,1fr)}
+  .topicRow{grid-template-columns:1fr 1fr}
+}
