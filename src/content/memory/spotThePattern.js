@@ -1,4 +1,4 @@
-import { shuffle, pick } from "../../lib/utils.js";
+import { shuffle, pick, randomInt } from "../../lib/utils.js";
 
 const SYMBOL_SETS = [["🔴", "🔵"], ["⭐", "🌙", "☀️"], ["🍎", "🍌"], ["🟩", "🟦", "🟨"]];
 const EXTRA_SYMBOLS = ["⬛", "🟣", "🔺", "💠"];
@@ -6,7 +6,9 @@ const EXTRA_SYMBOLS = ["⬛", "🟣", "🔺", "💠"];
 export function generateSpotPatternQuestion(difficulty = "medium", index = 0) {
   const set = pick(SYMBOL_SETS);
   const cycleLen = set.length;
-  const totalShown = difficulty === "hard" ? cycleLen * 3 : cycleLen * 2;
+  const repeats = difficulty === "hard" ? 3 : 2;
+  const offset = randomInt(0, cycleLen - 1);
+  const totalShown = cycleLen * repeats + offset;
   const seq = Array.from({ length: totalShown }, (_, i) => set[i % cycleLen]);
   const answer = set[totalShown % cycleLen];
 
