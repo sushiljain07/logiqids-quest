@@ -1,8 +1,20 @@
 const PREFERRED_NAME_PATTERN = /female|woman|girl|samantha|victoria|zira|susan/i;
 
+function isIndianEnglish(v) {
+  return !!v.lang && v.lang.toLowerCase() === "en-in";
+}
+
 export function pickVoice(voices) {
   if (!voices || voices.length === 0) return null;
   const english = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
+
+  // Prefer an Indian-English (en-IN) voice when the device has one installed,
+  // so read-aloud explanations sound natural to an Indian listener.
+  const indianEnglish = english.filter(isIndianEnglish);
+  const preferredIndian = indianEnglish.find(v => PREFERRED_NAME_PATTERN.test(v.name));
+  if (preferredIndian) return preferredIndian;
+  if (indianEnglish.length > 0) return indianEnglish[0];
+
   const preferred = english.find(v => PREFERRED_NAME_PATTERN.test(v.name));
   if (preferred) return preferred;
   if (english.length > 0) return english[0];
