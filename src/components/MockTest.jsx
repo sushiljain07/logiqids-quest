@@ -7,6 +7,7 @@ import { addLeaderboardEntry } from "../lib/storage.js";
 
 const TOTAL_QUESTIONS = 35;
 const LQ_CHAMP_COUNT = 7;
+const TOTAL_MINUTES = 60;
 const DIFFICULTY_RANK = { hard: 2, medium: 1, easy: 0 };
 
 export function buildMockTestQuestions() {
@@ -24,7 +25,7 @@ export default function MockTest({ avatar, playerName, onExit }) {
   const [stage, setStage] = useState("intro");
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState([]); // [{question, chosenId, isAnswered, isCorrect, isLQChamp}]
-  const [secondsLeft, setSecondsLeft] = useState(60 * 60);
+  const [secondsLeft, setSecondsLeft] = useState(TOTAL_MINUTES * 60);
   const questions = useMemo(() => (stage !== "intro" ? buildMockTestQuestions() : []), [stage === "intro"]);
   const recordedRef = useRef(false);
 
@@ -39,30 +40,40 @@ export default function MockTest({ avatar, playerName, onExit }) {
     setStage("inProgress");
     setIndex(0);
     setAnswers([]);
-    setSecondsLeft(60 * 60);
+    setSecondsLeft(TOTAL_MINUTES * 60);
   }
 
   function handleAnswered(isCorrect, optionId) {
     const q = questions[index];
-    setAnswers(a => [...a, { question: q, chosenId: optionId, isAnswered: true, isCorrect, isLQChamp: q.isLQChamp }]);
-    advance();
+    const entry = { question: q, chosenId: optionId, isAnswered: true, isCorrect, isLQChamp: q.isLQChamp };
+    const updated = [...answers, entry];
+    setAnswers(updated);
+    advance(updated);
   }
 
   function skip() {
     const q = questions[index];
-    setAnswers(a => [...a, { question: q, chosenId: null, isAnswered: false, isCorrect: false, isLQChamp: q.isLQChamp }]);
-    advance();
+    const entry = { question: q, chosenId: null, isAnswered: false, isCorrect: false, isLQChamp: q.isLQChamp };
+    const updated = [...answers, entry];
+    setAnswers(updated);
+    advance(updated);
   }
 
-  function advance() {
-    if (index === questions.length - 1) finishTest();
+  function advance(updatedAnswers) {
+    if (index === questions.length - 1) finishTest(updatedAnswers);
     else setIndex(i => i + 1);
   }
 
-  function finishTest() {
+  function finishTest(finalAnswers) {
+    // finalAnswers is passed explicitly from handleAnswered/skip so the just-submitted
+    // last answer is included even though setAnswers() hasn't flushed yet in this tick.
+    // The timer-expiry path (see effect above) calls finishTest() with no argument,
+    // deliberately falling back to the current `answers` state — an in-progress,
+    // never-submitted question is intentionally excluded from scoring in that case.
+    const answersToScore = finalAnswers || answers;
     if (!recordedRef.current) {
       recordedRef.current = true;
-      const result = scoreMockTest(answers);
+      const result = scoreMockTest(answersToScore);
       addLeaderboardEntry({ name: playerName || "Explorer", avatar, raw: result.raw, pct: result.pct, date: new Date().toISOString() });
     }
     setStage("results");
@@ -77,7 +88,7 @@ export default function MockTest({ avatar, playerName, onExit }) {
         <Header onBack={onExit} avatar={avatar} />
         <section className="resultHero">
           <h1>Mock Test</h1>
-          <p>35 questions, 60 minutes. Correct answers earn 4 points (8 for LQ Champ questions); wrong answers lose 1 point (2 for LQ Champ). Explanations are shown at the end, just like the real test.</p>
+          <p>{TOTAL_QUESTIONS} questions, {TOTAL_MINUTES} minutes. Correct answers earn 4 points (8 for LQ Champ questions); wrong answers lose 1 point (2 for LQ Champ). Explanations are shown at the end, just like the real test.</p>
           <button className="startBtn" onClick={start}>Start Test</button>
         </section>
       </main>
