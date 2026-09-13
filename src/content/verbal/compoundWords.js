@@ -12,17 +12,24 @@ export function generateCompoundWordQuestion(difficulty = "medium", index = 0) {
   const shuffledEntries = shuffle(COMPOUND_WORDS);
   const [correctHead, correctTail] = shuffledEntries[0];
 
+  // Sample head and tail independently across the FULL entry list. An earlier version walked a
+  // nested loop that never advanced its outer index, so all three wrong options shared one head
+  // word while the answer used a different one — the answer was the "odd head out" 100% of the
+  // time. Sampling freely lets a distractor reuse the correct head, killing that signal.
+  const correctKey = `${correctHead}+${correctTail}`;
   const wrongPairs = [];
-  for (let i = 1; i < shuffledEntries.length && wrongPairs.length < 3; i++) {
+  const seenKeys = new Set([correctKey]);
+  let guard = 0;
+  while (wrongPairs.length < 3 && guard < 500) {
+    guard++;
+    const i = Math.floor(Math.random() * shuffledEntries.length);
+    const j = Math.floor(Math.random() * shuffledEntries.length);
     const head = shuffledEntries[i][0];
-    for (let j = 1; j < shuffledEntries.length && wrongPairs.length < 3; j++) {
-      if (i === j) continue;
-      const tail = shuffledEntries[j][1];
-      const key = `${head}+${tail}`;
-      if (!VALID_PAIR_SET.has(key) && !wrongPairs.some(p => p.key === key)) {
-        wrongPairs.push({ head, tail, key });
-      }
-    }
+    const tail = shuffledEntries[j][1];
+    const key = `${head}+${tail}`;
+    if (seenKeys.has(key) || VALID_PAIR_SET.has(key)) continue;
+    seenKeys.add(key);
+    wrongPairs.push({ head, tail, key });
   }
 
   const howTo = `${correctHead.toUpperCase()} + ${correctTail.toUpperCase()} makes the real word "${correctHead}${correctTail}." The other pairs don't make a real word when joined.`;
