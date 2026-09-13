@@ -58,6 +58,9 @@ async function shot(page, path) { await page.screenshot({ path, fullPage: true }
   await shot(page, "scripts/screenshots/desktop-topic-done.png");
   const speakCallCount = await page.evaluate(() => window.__speakCalls.length);
   console.log("speechSynthesis.speak call count (expect > 0):", speakCallCount);
+  if (speakCallCount === 0) {
+    throw new Error(`Expected speechSynthesis.speak to be called at least once, got ${speakCallCount}`);
+  }
 
   await page.click("button[aria-label='Home']");
   await page.waitForSelector("text=Analytical Thinking");
@@ -101,6 +104,9 @@ async function shot(page, path) { await page.screenshot({ path, fullPage: true }
   await shot(page, "scripts/screenshots/desktop-leaderboard.png");
 
   console.log("Page errors:", JSON.stringify(errors));
+  if (errors.length > 0) {
+    throw new Error(`Expected no page errors, got: ${JSON.stringify(errors)}`);
+  }
   await ctx.close();
 
   // Mobile + tablet viewport checks on the skill map and a topic screen
