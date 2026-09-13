@@ -4,7 +4,7 @@ const CODE_POOL = ["zog", "mint", "pilo", "dax", "wren", "qubo", "farn", "clix",
 
 const GROUPS = [
   { words: ["car", "window", "door", "lock", "key"], question: "what would you use to open a lock", target: "key" },
-  { words: ["plate", "spoon", "cup", "table", "chair"], question: "what would you sit on", target: "chair" },
+  { words: ["plate", "spoon", "cup", "fork", "chair"], question: "what would you sit on", target: "chair" },
   { words: ["pen", "paper", "bag", "chair", "shoe"], question: "what would you carry your books in", target: "bag" },
 ];
 
