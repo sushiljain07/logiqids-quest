@@ -37,4 +37,32 @@ describe("SkillMap (static render)", () => {
     expect(html).toMatch(/data-topic-id="oddOneOut" class="topicNode unlocked"/);
     expect(html).toMatch(/data-topic-id="seriesCompletion" class="topicNode mastered"/);
   });
+
+  it("renders a sound toggle in the footer that reflects and reports the sound state", () => {
+    const render = (extra) => renderToStaticMarkup(
+      <SkillMap progress={{}} avatar="🦁" onOpenTopic={() => {}} onOpenMixedPractice={() => {}}
+        onOpenMockTest={() => {}} onOpenProgress={() => {}} onOpenLeaderboard={() => {}} {...extra} />
+    );
+    expect(render({ soundOn: true })).toContain("Sound On");
+    expect(render({ soundOn: false })).toContain("Sound Off");
+    expect(render({})).toContain("Sound On"); // defaults to on when the prop is omitted
+
+    // The toggle button must actually call onToggleSound.
+    let toggled = 0;
+    const tree = SkillMap({
+      progress: {}, avatar: "🦁", onOpenTopic: () => {}, onOpenMixedPractice: () => {},
+      onOpenMockTest: () => {}, onOpenProgress: () => {}, onOpenLeaderboard: () => {},
+      soundOn: true, onToggleSound: () => { toggled++; },
+    });
+    const find = (node) => {
+      if (!node || typeof node !== "object") return null;
+      if (Array.isArray(node)) { for (const c of node) { const hit = find(c); if (hit) return hit; } return null; }
+      if (node.props?.["data-testid"] === "soundToggle") return node;
+      return find(node.props?.children);
+    };
+    const toggle = find(tree);
+    expect(toggle).toBeTruthy();
+    toggle.props.onClick();
+    expect(toggled).toBe(1);
+  });
 });

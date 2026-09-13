@@ -8,6 +8,7 @@ import MockTest from "./components/MockTest.jsx";
 import ProgressScreen from "./components/ProgressScreen.jsx";
 import LeaderboardScreen from "./components/LeaderboardScreen.jsx";
 import { getTopic } from "./content/index.js";
+import { stopSpeech } from "./lib/speech.js";
 
 export default function App() {
   const [avatar, setAvatar] = useState(() => loadJSON(KEYS.AVATAR, AVATARS[0]));
@@ -42,6 +43,8 @@ export default function App() {
           onOpenMockTest={() => setScreen("mockTest")}
           onOpenProgress={() => setScreen("progress")}
           onOpenLeaderboard={() => setScreen("leaderboard")}
+          soundOn={soundOn}
+          onToggleSound={() => { stopSpeech(); setSoundOn(s => !s); }}
         />
       )}
 
