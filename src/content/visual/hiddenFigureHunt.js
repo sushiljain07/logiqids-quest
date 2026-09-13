@@ -1,44 +1,44 @@
-import { shuffle, pick } from "../../lib/utils.js";
+import { shuffle } from "../../lib/utils.js";
 
 function thumb(shape) {
   return { width: 60, height: 60, shapes: [shape] };
 }
 
-const PRIMITIVES = {
-  circle: { type: "circle", cx: 30, cy: 30, r: 25, fill: "#ffb38f", stroke: "#25233a" },
-  square: { type: "rect", x: 8, y: 8, w: 44, h: 44, fill: "#a7d9ff", stroke: "#25233a" },
-  triangle: { type: "polygon", points: "30,6 54,54 6,54", fill: "#c9f5c9", stroke: "#25233a" },
-  star: { type: "star", points: "30,4 37,22 56,22 41,34 47,53 30,41 13,53 19,34 4,22 23,22", fill: "#ffe08a", stroke: "#25233a" },
-  pentagon: { type: "pentagon", points: "30,4 54,22 45,52 15,52 6,22", fill: "#e6c9ff", stroke: "#25233a" },
-};
+const SHAPE_POOL = [
+  { name: "circle", shape: { type: "circle", cx: 70, cy: 70, r: 50, fill: "#ffb38f88", stroke: "#25233a" } },
+  { name: "square", shape: { type: "rect", x: 90, y: 50, w: 90, h: 90, fill: "#a7d9ff88", stroke: "#25233a" } },
+  { name: "triangle", shape: { type: "polygon", points: "50,180 150,180 100,90", fill: "#c9f5c988", stroke: "#25233a" } },
+  { name: "star", shape: { type: "polygon", points: "140,15 146,32 164,32 150,43 155,61 140,50 125,61 130,43 116,32 134,32", fill: "#ffe08a88", stroke: "#25233a" } },
+  { name: "pentagon", shape: { type: "polygon", points: "60,105 88,124 77,157 43,157 32,124", fill: "#e6c9ff88", stroke: "#25233a" } },
+  { name: "diamond", shape: { type: "polygon", points: "110,115 145,150 110,185 75,150", fill: "#ffb3d988", stroke: "#25233a" } },
+];
 
 function masterFigure() {
+  const chosen = shuffle(SHAPE_POOL).slice(0, 4); // 3 members + 1 held out as the foreign/answer
+  const members = chosen.slice(0, 3);
+  const foreign = chosen[3];
   return {
-    width: 220, height: 220,
-    shapes: [
-      { type: "circle", cx: 80, cy: 80, r: 55, fill: "#ffb38f88", stroke: "#25233a" },
-      { type: "rect", x: 90, y: 60, w: 100, h: 100, fill: "#a7d9ff88", stroke: "#25233a" },
-      { type: "polygon", points: "60,190 160,190 110,110", fill: "#c9f5c988", stroke: "#25233a" },
-    ],
+    master: { width: 200, height: 200, shapes: members.map(m => m.shape) },
+    memberNames: members.map(m => m.name),
+    foreign,
   };
 }
 
 export function generateHiddenFigureQuestion(difficulty = "medium", index = 0) {
-  const master = masterFigure();
-  const memberTypes = ["circle", "square", "triangle"];
-  const foreignType = pick(["star", "pentagon"]);
-  const howTo = `The figure is made of a circle, a square, and a triangle overlapping. The ${foreignType} is never one of them, so it's the one NOT hidden in the figure.`;
+  const { master, memberNames, foreign } = masterFigure();
+  const memberEntries = SHAPE_POOL.filter(s => memberNames.includes(s.name));
+  const howTo = `The figure is made of a ${memberNames.join(", ")} overlapping. The ${foreign.name} is never one of them, so it's the one NOT hidden in the figure.`;
 
   const candidates = shuffle([
-    { type: foreignType, isAnswer: true },
-    ...memberTypes.map(t => ({ type: t, isAnswer: false })),
+    { name: foreign.name, shape: foreign.shape, isAnswer: true },
+    ...memberEntries.map(m => ({ name: m.name, shape: m.shape, isAnswer: false })),
   ]);
   const letters = ["A", "B", "C", "D"];
-  const options = candidates.map((c, i) => ({ id: letters[i], figure: thumb(PRIMITIVES[c.type]) }));
+  const options = candidates.map((c, i) => ({ id: letters[i], figure: thumb(c.shape) }));
   const answerId = letters[candidates.findIndex(c => c.isAnswer)];
   const mistakes = {};
   candidates.forEach((c, i) => {
-    if (!c.isAnswer) mistakes[letters[i]] = `The ${c.type} really is one of the overlapping shapes in the figure. ${howTo}`;
+    if (!c.isAnswer) mistakes[letters[i]] = `The ${c.name} really is one of the overlapping shapes in the figure. ${howTo}`;
   });
 
   return {
