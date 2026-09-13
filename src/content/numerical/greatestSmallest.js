@@ -1,9 +1,19 @@
-import { shuffle, randomInt } from "../../lib/utils.js";
+import { shuffle, randomInt, pick } from "../../lib/utils.js";
 
 function randomDistinctDigits(count) {
   const digits = new Set();
   while (digits.size < count) digits.add(String(randomInt(1, 9)));
   return [...digits];
+}
+
+function permutations(arr) {
+  if (arr.length <= 1) return [arr];
+  const result = [];
+  for (let i = 0; i < arr.length; i++) {
+    const rest = [...arr.slice(0, i), ...arr.slice(i + 1)];
+    for (const p of permutations(rest)) result.push([arr[i], ...p]);
+  }
+  return result;
 }
 
 export function generateGreatestSmallestQuestion(difficulty = "medium", index = 0) {
@@ -17,14 +27,11 @@ export function generateGreatestSmallestQuestion(difficulty = "medium", index = 
   [swapped[0], swapped[1]] = [swapped[1], swapped[0]];
   const nearMiss = swapped.join("");
 
-  const distractorSet = new Set([opposite, nearMiss]);
-  let randomShuffleStr = shuffle(digits).join("");
-  let guard = 0;
-  while ((distractorSet.has(randomShuffleStr) || randomShuffleStr === correct) && guard < 20) {
-    randomShuffleStr = shuffle(digits).join("");
-    guard++;
-  }
-  distractorSet.add(randomShuffleStr);
+  // Generate all permutations and pick one that's not already used
+  const allPerms = permutations(digits).map(p => p.join(""));
+  const excluded = new Set([correct, opposite, nearMiss]);
+  const validRandomOptions = allPerms.filter(p => !excluded.has(p));
+  const randomShuffleStr = pick(validRandomOptions);
 
   const howTo = `To make the ${askGreatest ? "greatest" : "smallest"} number, arrange the digits from ${askGreatest ? "biggest to smallest" : "smallest to biggest"}: ${digits.join(", ")} → ${correct}.`;
   const candidates = shuffle([
