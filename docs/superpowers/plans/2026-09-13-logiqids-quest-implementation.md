@@ -636,10 +636,10 @@ describe("buildGridFigure", () => {
 });
 
 describe("buildFanFigure", () => {
-  it("draws n+1 lines from the apex (outer 2 sides + n-1 internal cevians)", () => {
+  it("draws 2 outer sides + (n-1) internal cevians + 1 base line = n+2 lines total", () => {
     const fig = buildFanFigure(3, { width: 200, height: 200 });
     const lines = fig.shapes.filter(s => s.type === "line");
-    expect(lines.length).toBe(4); // 2 outer sides + 2 internal cevians for n=3
+    expect(lines.length).toBe(5); // 2 outer sides + 2 internal cevians + 1 base line, for n=3
   });
 });
 
