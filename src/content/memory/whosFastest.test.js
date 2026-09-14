@@ -8,7 +8,9 @@ describe("generateWhosFastestQuestion", () => {
       const answerLabel = q.options.find(o => o.id === q.answerId).label;
       const namesInClues = [...q.prompt.matchAll(/([A-Z][a-z]+) runs faster than ([A-Z][a-z]+)/g)]
         .flatMap(m => [m[1], m[2]]);
-      if (q.prompt.includes("NOT mentioned")) {
+      if (namesInClues.length === 0) {
+        // elimination-variant prompt (boxes/colours) — no speed clues to check against
+      } else if (q.prompt.includes("NOT mentioned")) {
         expect(namesInClues).not.toContain(answerLabel);
       } else {
         expect(namesInClues).toContain(answerLabel);

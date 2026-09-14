@@ -1,4 +1,4 @@
-import { shuffle, pickMidpointPuzzle } from "../../lib/utils.js";
+import { shuffle, pick, randomInt, pickMidpointPuzzle } from "../../lib/utils.js";
 
 const WORD_BANK = ["giraffe", "elephant", "banana", "umbrella", "butterfly", "pineapple", "kangaroo", "dinosaur", "chocolate", "mountain", "fox"];
 
@@ -52,8 +52,26 @@ function midpointVariant() {
   return { prompt: `In this letter order: ${sequence.join(" ")} — which letter is exactly midway between "${letterA}" and "${letterB}"?`, candidates, howTo };
 }
 
+const WORD_BANK6 = ["candy", "planet", "garden", "monkey", "bridge", "yellow", "forest", "dolphin"];
+
+function alphabetizeWordVariant() {
+  const word = pick(WORD_BANK6);
+  const sorted = word.split("").sort().join("");
+  const position = randomInt(1, word.length);
+  const answer = sorted[position - 1].toUpperCase();
+  const howTo = `Sorting the letters of "${word.toUpperCase()}" alphabetically gives "${sorted.toUpperCase()}". The letter at position ${position} is "${answer}".`;
+  const decoyPool = [...new Set(sorted.split(""))].map(l => l.toUpperCase()).filter(l => l !== answer);
+  const decoys = shuffle(decoyPool).slice(0, 3);
+  while (decoys.length < 3) decoys.push(String.fromCharCode(65 + randomInt(0, 25)));
+  const candidates = shuffle([
+    { label: answer, isAnswer: true, reason: null },
+    ...decoys.map(d => ({ label: d, isAnswer: false, reason: `isn't at position ${position} when "${word}"'s letters are sorted alphabetically` })),
+  ]);
+  return { prompt: `I am a letter in the English alphabet. I come at position ${position} when the letters of the word "${word.toUpperCase()}" are arranged in alphabetical order. Which letter am I?`, candidates, howTo };
+}
+
 export function generateWhichLetterQuestion(difficulty = "medium", index = 0) {
-  const built = Math.random() < 0.6 ? onceTwiceVariant() : midpointVariant();
+  const built = pick([onceTwiceVariant, midpointVariant, alphabetizeWordVariant])();
   const { prompt, candidates, howTo } = built;
   const letters4 = ["A", "B", "C", "D"];
   const options = candidates.map((c, i) => ({ id: letters4[i], label: c.label }));

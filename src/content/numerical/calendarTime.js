@@ -154,10 +154,87 @@ function everyNthDayCountVariant() {
   return { prompt: `Someone practices ${intervalWord} of ${monthName} ${year}, starting from the 1st. How many days in ${monthName} will they practice?`, candidates, howTo };
 }
 
+const EVENT_SCENARIOS = [
+  (name) => ({
+    statements: [
+      `${name} started studying one week before the exams.`,
+      `${name} went on a holiday trip after the results were out.`,
+      `${name} has exams coming up after a month.`,
+      `${name} collected the marksheet after the exam.`,
+    ],
+    correctOrder: [3, 1, 4, 2],
+  }),
+  (name) => ({
+    statements: [
+      `${name} planted a seed in the garden.`,
+      `${name} watered the plant every day for a month.`,
+      `${name} saw the first flower bloom.`,
+      `${name} picked the flower and gave it to a friend.`,
+    ],
+    correctOrder: [1, 2, 3, 4],
+  }),
+  (name) => ({
+    statements: [
+      `${name} booked train tickets for a trip.`,
+      `${name} packed the bags the night before.`,
+      `${name} boarded the train in the morning.`,
+      `${name} reached the destination by evening.`,
+    ],
+    correctOrder: [1, 2, 3, 4],
+  }),
+];
+
+function eventSequencingVariant() {
+  const name = pick(["Jason", "Meera", "Kabir", "Riya", "Aarav"]);
+  const scenario = pick(EVENT_SCENARIOS)(name);
+  const correctStr = scenario.correctOrder.join("-");
+  const wrongOrders = [];
+  let guard = 0;
+  while (wrongOrders.length < 3 && guard < 50) {
+    guard++;
+    const str = shuffle([1, 2, 3, 4]).join("-");
+    if (str !== correctStr && !wrongOrders.includes(str)) wrongOrders.push(str);
+  }
+  const statementList = scenario.statements.map((s, i) => `${i + 1}. ${s}`).join(" ");
+  const howTo = `Working out the timeline from the clues, the correct chronological order is ${correctStr}.`;
+  const candidates = shuffle([
+    { label: correctStr, isAnswer: true, reason: null },
+    ...wrongOrders.map(o => ({ label: o, isAnswer: false, reason: `doesn't match the actual timeline` })),
+  ]);
+  return { prompt: `Arrange the following statements in the order in which they occur: ${statementList}`, candidates, howTo };
+}
+
+function weeklyEventInRangeVariant() {
+  const dayIndex = randomInt(0, 6);
+  const dayName = DAY_NAMES[dayIndex];
+  const startDate = randomDate();
+  const firstOccurrence = new Date(startDate);
+  while (firstOccurrence.getDay() !== dayIndex) firstOccurrence.setDate(firstOccurrence.getDate() + 1);
+  const rangeDays = randomInt(7, 20);
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + rangeDays);
+  let count = 0;
+  const cursor = new Date(firstOccurrence);
+  while (cursor <= endDate) { count++; cursor.setDate(cursor.getDate() + 7); }
+  const activity = pick(["swimming classes", "dance practice", "music lessons", "football practice"]);
+  const howTo = `Counting every ${dayName} from ${fmtDate(startDate)} through ${fmtDate(endDate)}: the first one is ${fmtDate(firstOccurrence)}, then every 7 days after that, giving ${count} in total.`;
+  const pool = [...new Set([count - 1, count + 1, Math.floor(rangeDays / 7)].filter(v => v >= 0 && v !== count))];
+  while (pool.length < 3) pool.push(count + pool.length + 2);
+  const candidates = shuffle([
+    { label: String(count), isAnswer: true, reason: null },
+    ...pool.slice(0, 3).map(v => ({ label: String(v), isAnswer: false, reason: `doesn't match counting every ${dayName} in that date range` })),
+  ]);
+  return {
+    prompt: `If someone goes for ${activity} every ${dayName}, starting from ${fmtDate(startDate)} (a ${DAY_NAMES[startDate.getDay()]}), how many times would they go between ${fmtDate(startDate)} and ${fmtDate(endDate)}?`,
+    candidates, howTo,
+  };
+}
+
 export function generateCalendarTimeQuestion(difficulty = "medium", index = 0) {
   const built = pick([
     dateOrderingVariant, dayOfWeekVariant, () => scheduleVariant(difficulty),
     backwardScheduleVariant, monthEndDayOfWeekVariant, monthStepSequenceVariant, everyNthDayCountVariant,
+    eventSequencingVariant, weeklyEventInRangeVariant,
   ])();
   const { prompt, candidates, howTo } = built;
   const letters = ["A", "B", "C", "D"];

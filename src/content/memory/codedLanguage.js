@@ -78,8 +78,31 @@ function combinationChartVariant() {
   };
 }
 
+const WORD_BANK4 = ["BACK", "DECK", "CARD", "LAMP", "GOLD", "FISH", "BIRD", "MILK", "SOFA", "ROSE"];
+
+function transformWord(word) {
+  return word.split("").reverse().map((ch, i) => (i % 2 === 0 ? ch.toUpperCase() : ch.toLowerCase())).join("");
+}
+
+function wordTransformVariant() {
+  const [w1, w2, w3] = shuffle(WORD_BANK4).slice(0, 3);
+  const t1 = transformWord(w1), t2 = transformWord(w2);
+  const answer = transformWord(w3);
+  const howTo = `Two things happen: the letters are reversed, then written alternating UPPER/lower starting with UPPER. ${w1} → ${t1}, ${w2} → ${t2}, so ${w3} → ${answer}.`;
+  const reverseOnly = w3.split("").reverse().join("");
+  const caseOnlyNoReverse = w3.split("").map((ch, i) => (i % 2 === 0 ? ch.toUpperCase() : ch.toLowerCase())).join("");
+  const wrongStart = w3.split("").reverse().map((ch, i) => (i % 2 === 0 ? ch.toLowerCase() : ch.toUpperCase())).join("");
+  const distractorPool = [...new Set([reverseOnly, caseOnlyNoReverse, wrongStart])].filter(v => v !== answer);
+  while (distractorPool.length < 3) distractorPool.push(answer + distractorPool.length);
+  const candidates = shuffle([
+    { label: answer, isAnswer: true, reason: null },
+    ...distractorPool.slice(0, 3).map(v => ({ label: v, isAnswer: false, reason: `doesn't apply both the reversal AND the alternating case correctly` })),
+  ]);
+  return { prompt: `What will come in place of "?" — ${w1} : ${t1} :: ${w2} : ${t2} :: ${w3} : ?`, candidates, howTo };
+}
+
 export function generateCodedLanguageQuestion(difficulty = "medium", index = 0) {
-  const built = pick([directCodeVariant, chainRelabelVariant, combinationChartVariant])();
+  const built = pick([directCodeVariant, chainRelabelVariant, combinationChartVariant, wordTransformVariant])();
   const { prompt, candidates, howTo } = built;
   const letters = ["A", "B", "C", "D"];
   const options = candidates.map((c, i) => ({ id: letters[i], label: c.label }));

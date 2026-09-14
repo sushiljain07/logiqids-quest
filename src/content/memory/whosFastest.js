@@ -53,8 +53,28 @@ function notMentionedTrapVariant() {
   return { prompt: `${s1} ${s2} Which of these animals was NOT mentioned in the clues?`, candidates, howTo };
 }
 
+function eliminationVariant() {
+  const colors = shuffle(["red", "blue", "green"]);
+  const truth = { A: colors[0], B: colors[1], C: colors[2] };
+  const clue1 = `Box A does not have the ${colors[1]} or ${colors[2]} colour ball in it.`;
+  const clue2 = `Box B does not have the ${colors[2]} colour ball in it.`;
+  const askColor = pick(colors);
+  const askBox = Object.keys(truth).find(k => truth[k] === askColor);
+  const howTo = `Clue 1 means Box A must have ${colors[0]} (the only colour left for it). Clue 2 means Box B must have ${colors[1]} (since it isn't ${colors[2]}). That leaves Box C with ${colors[2]}.`;
+  const candidates = ["A", "B", "C"].map(b => ({
+    label: `Box ${b}`,
+    isAnswer: b === askBox,
+    reason: b === askBox ? null : `Box ${b} has the ${truth[b]} ball, not ${askColor}`,
+  }));
+  candidates.push({ label: "Cannot be determined", isAnswer: false, reason: "the two clues are actually enough to work out every box" });
+  return {
+    prompt: `Three boxes A, B and C each hold one ball — red, blue, and green — but not necessarily in that order. Each box has only one ball in it. ${clue1} ${clue2} Which box has the ${askColor} ball?`,
+    candidates: shuffle(candidates), howTo,
+  };
+}
+
 export function generateWhosFastestQuestion(difficulty = "medium", index = 0) {
-  const built = pick([twoClueVariant, fourItemChainVariant, notMentionedTrapVariant])();
+  const built = pick([twoClueVariant, fourItemChainVariant, notMentionedTrapVariant, eliminationVariant])();
   const { prompt, candidates, howTo } = built;
   const letters = ["A", "B", "C", "D"];
   const options = candidates.map((c, i) => ({ id: letters[i], label: c.label }));
@@ -87,6 +107,7 @@ export const whosFastestTopic = {
       { caption: "\"Tiger faster than Lion. Tiger slower than Cheetah.\" That means: Cheetah > Tiger > Lion." },
       { caption: "Sometimes there are 3 clues chaining 4 things together — the same idea, just longer." },
       { caption: "Watch out for a name that's never even mentioned — you can't reason about it at all!" },
+      { caption: "Other clues work by ELIMINATION instead — \"not this, not that\" — cross off what's ruled out until only one answer is left." },
     ],
   },
   getTryTogether: () => [0, 1].map(i => generateWhosFastestQuestion("easy", i)),
