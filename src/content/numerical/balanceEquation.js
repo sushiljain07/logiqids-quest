@@ -91,8 +91,77 @@ function digitExtractionVariant() {
   return { prompt: `${exprStr} = ${maskedResult}. Find the value of ${askLetter}.`, candidates, howTo };
 }
 
+function exprEqualTo(target) {
+  const kind = pick(["add", "sub", "mul"]);
+  if (kind === "add") { const a = randomInt(1, target - 1 || 1); return { text: `${a} + ${target - a}` }; }
+  if (kind === "sub") { const a = target + randomInt(1, 10); return { text: `${a} - ${a - target}` }; }
+  const factors = [];
+  for (let f = 2; f <= target; f++) if (target % f === 0) factors.push(f);
+  if (factors.length) { const f = pick(factors); return { text: `${f} × ${target / f}` }; }
+  return { text: `${target} + 0` };
+}
+
+function uniqueExprs(target, count, excludeTexts = new Set()) {
+  const result = [];
+  let guard = 0;
+  while (result.length < count && guard < 50) {
+    guard++;
+    const e = exprEqualTo(target);
+    if (!excludeTexts.has(e.text) && !result.some(r => r.text === e.text)) result.push(e);
+  }
+  return result;
+}
+
+function wrongComputationVariant() {
+  const target = randomInt(12, 30);
+  const correctExprs = uniqueExprs(target, 3);
+  const wrongDelta = pick([-3, -2, -1, 1, 2, 3]);
+  const wrongTarget = target + wrongDelta;
+  const [wrongExpr] = uniqueExprs(wrongTarget, 1, new Set(correctExprs.map(e => e.text)));
+  const howTo = `${correctExprs.map(e => `${e.text} = ${target}`).join(", ")}. But ${wrongExpr.text} = ${wrongTarget}, not ${target} — that's the one that doesn't match.`;
+  const candidates = shuffle([
+    { label: wrongExpr.text, isAnswer: true, reason: null },
+    ...correctExprs.map(e => ({ label: e.text, isAnswer: false, reason: `${e.text} = ${target}, which DOES match` })),
+  ]);
+  return { prompt: `Which of the following options does NOT equal ${target}?`, candidates, howTo };
+}
+
+function linearEquationVariant() {
+  const n = randomInt(5, 30);
+  const m = randomInt(2, 4);
+  const k = n * (m - 1);
+  const howTo = `If the number is n, then n + ${k} = ${m} × n. That means ${k} = ${m - 1} × n, so n = ${k} ÷ ${m - 1} = ${n}.`;
+  const pool = [...new Set([k, n + m, n * m].filter(v => v !== n))];
+  while (pool.length < 3) pool.push(n + pool.length + 5);
+  const candidates = shuffle([
+    { label: String(n), isAnswer: true, reason: null },
+    ...pool.slice(0, 3).map(v => ({ label: String(v), isAnswer: false, reason: `doesn't satisfy n + ${k} = ${m} × n` })),
+  ]);
+  return { prompt: `When ${k} is added to a number, the result is ${m} times the number itself. What was the number?`, candidates, howTo };
+}
+
+function sortExpressionsVariant() {
+  const letters3 = ["A", "B", "C"];
+  const exprs = letters3.map(lab => {
+    const a = randomInt(5, 20), b = randomInt(1, a - 1);
+    return { lab, value: a - b, text: `${a} - ${b}` };
+  });
+  if (new Set(exprs.map(e => e.value)).size < 3) return sortExpressionsVariant();
+  const sorted = [...exprs].sort((x, y) => x.value - y.value);
+  const correctStr = sorted.map(e => e.lab).join("");
+  const allPerms = [["A","B","C"],["A","C","B"],["B","A","C"],["B","C","A"],["C","A","B"],["C","B","A"]].map(p => p.join(""));
+  const wrongPerms = shuffle(allPerms.filter(p => p !== correctStr)).slice(0, 3);
+  const exprList = exprs.map(e => `${e.lab}) ${e.text}`).join(", ");
+  const howTo = `Evaluating each: ${exprs.map(e => `${e.text} = ${e.value}`).join(", ")}. Sorted ascending: ${sorted.map(e => e.lab).join(" → ")}.`;
+  const candidates = shuffle([
+    { label: correctStr, isAnswer: true, reason: null },
+    ...wrongPerms.map(p => ({ label: p, isAnswer: false, reason: `doesn't put the results in ascending order` })),
+  ]);
+  return { prompt: `Which of the following options has these expressions in ascending order of their value? ${exprList}`, candidates, howTo };
+}
+
 export function generateBalanceQuestion(difficulty = "medium", index = 0) {
-  const built = pick([signRemapVariant, columnAdditionVariant, digitExtractionVariant])();
+  const built = pick([signRemapVariant, columnAdditionVariant, digitExtractionVariant, wrongComputationVariant, linearEquationVariant, sortExpressionsVariant])();
   const { prompt, candidates, howTo } = built;
   const letters = ["A", "B", "C", "D"];
   const options = candidates.map((c, i) => ({ id: letters[i], label: c.label }));

@@ -6,6 +6,7 @@ const RELATION_SETS = {
   function: { label: "what a", pairs: [["bulb","glow"],["fan","rotate"],["clock","tick"],["phone","ring"],["kettle","whistle"],["engine","roar"]] },
   category: { label: "a kind of", pairs: [["dog","pet"],["housefly","pest"],["rose","flower"],["car","vehicle"],["rupee","currency"],["mango","fruit"]] },
   toolUse: { label: "used to", pairs: [["pen","write"],["scissors","cut"],["broom","sweep"],["key","unlock"],["spoon","stir"],["needle","sew"]] },
+  habitat: { label: "found living in", pairs: [["tiger","land"],["fish","water"],["bird","air"],["bee","hive"],["ant","colony"],["polar bear","ice"]] },
 };
 
 export function generateAnalogyQuestion(difficulty = "medium", index = 0) {
@@ -16,8 +17,8 @@ export function generateAnalogyQuestion(difficulty = "medium", index = 0) {
   const [a2, b2] = shuffledPairs[1];
   const otherBs = shuffledPairs.slice(2, 4).map(p => p[1]);
 
-  const howTo = relationName === "function" || relationName === "toolUse"
-    ? `${a1} is to ${b1} because that's ${relationLabel} ${a1} does/is for. Using the same rule, ${a2} is to ${b2}.`
+  const howTo = relationName === "function" || relationName === "toolUse" || relationName === "habitat"
+    ? `${a1} is to ${b1} because that's ${relationLabel} ${a1}. Using the same rule, ${a2} is to ${b2}.`
     : `${a1} is to ${b1} because ${b1} is ${relationLabel} ${a1}. Using the same rule, ${a2} is to ${b2}.`;
 
   const candidates = shuffle([

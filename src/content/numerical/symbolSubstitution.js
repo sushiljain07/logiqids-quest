@@ -84,8 +84,35 @@ function iconEquationVariant() {
   };
 }
 
+function booleanTruthVariant() {
+  const remapDesc = `"=" means ">" and ">" means "<"`;
+  function isTrue(a, sym, b) {
+    const realSym = sym === "=" ? ">" : "<";
+    return realSym === ">" ? a > b : a < b;
+  }
+  const statements = Array.from({ length: 2 }, () => {
+    const a = randomInt(1, 15), b = randomInt(1, 15);
+    const sym = pick(["=", ">"]);
+    return { a, b, sym, isTrue: isTrue(a, sym, b), text: `${a} ${sym} ${b}` };
+  });
+  const trueCount = statements.filter(s => s.isTrue).length;
+  const answerLabel = trueCount === 2 ? "Both statements are correct"
+    : trueCount === 0 ? "Neither statement is correct"
+    : statements[0].isTrue ? "Statement 1 only" : "Statement 2 only";
+  const howTo = `${remapDesc}. Statement 1 (${statements[0].text}) really means ${statements[0].a} ${statements[0].sym === "=" ? ">" : "<"} ${statements[0].b}, which is ${statements[0].isTrue ? "TRUE" : "FALSE"}. Statement 2 (${statements[1].text}) really means ${statements[1].a} ${statements[1].sym === "=" ? ">" : "<"} ${statements[1].b}, which is ${statements[1].isTrue ? "TRUE" : "FALSE"}.`;
+  const candidates = ["Statement 1 only", "Statement 2 only", "Both statements are correct", "Neither statement is correct"].map(label => ({
+    label,
+    isAnswer: label === answerLabel,
+    reason: label === answerLabel ? null : `doesn't match which statement(s) are actually true after remapping`,
+  }));
+  return {
+    prompt: `If ${remapDesc}, then which of the following would be correct? Statement 1: ${statements[0].text}. Statement 2: ${statements[1].text}.`,
+    candidates, howTo,
+  };
+}
+
 export function generateSymbolSubstitutionQuestion(difficulty = "medium", index = 0) {
-  const built = pick([() => remapEvaluateVariant(difficulty), remapCompareVariant, iconEquationVariant])();
+  const built = pick([() => remapEvaluateVariant(difficulty), remapCompareVariant, iconEquationVariant, booleanTruthVariant])();
   const { prompt, candidates, howTo } = built;
   const letters = ["A", "B", "C", "D"];
   const options = candidates.map((c, i) => ({ id: letters[i], label: c.label }));

@@ -78,8 +78,87 @@ function scheduleVariant(difficulty) {
   };
 }
 
+function backwardScheduleVariant() {
+  const deadlineH = randomInt(17, 20);
+  const deadlineM = pick([0, 15, 30, 45]);
+  const bufferMin = pick([10, 15, 20]);
+  const task1 = randomInt(20, 70);
+  const breakMin = randomInt(10, 20);
+  const task2 = randomInt(15, 40);
+  const deadlineTotal = deadlineH * 60 + deadlineM;
+  const totalNeeded = task1 + breakMin + task2 + bufferMin;
+  const latestStartTotal = deadlineTotal - totalNeeded;
+  const howTo = `Working backward from the deadline: must join ${bufferMin} minutes before ${fmtTime(deadlineTotal)}, so must finish by ${fmtTime(deadlineTotal - bufferMin)}. Before that comes task 2 (${task2} min), a ${breakMin} minute break, and task 1 (${task1} min) — ${totalNeeded} minutes total — so the latest start is ${fmtTime(latestStartTotal)}.`;
+  const pool = [...new Set([latestStartTotal + breakMin, latestStartTotal - task1, latestStartTotal + bufferMin].map(fmtTime))].filter(v => v !== fmtTime(latestStartTotal));
+  while (pool.length < 3) pool.push(fmtTime(latestStartTotal + 15 * (pool.length + 1)));
+  const candidates = shuffle([
+    { label: fmtTime(latestStartTotal), isAnswer: true, reason: null },
+    ...pool.slice(0, 3).map(v => ({ label: v, isAnswer: false, reason: `doesn't leave enough time for both tasks, the break, and the buffer before the deadline` })),
+  ]);
+  return {
+    prompt: `Two tasks must be done back to back: the first takes ${task1} minutes, then a ${breakMin} minute break, then the second takes ${task2} minutes. Right after, there's a commitment at ${fmtTime(deadlineTotal)} that must be joined at least ${bufferMin} minutes early. What is the latest time the first task can start?`,
+    candidates, howTo,
+  };
+}
+
+function monthEndDayOfWeekVariant() {
+  const year = randomInt(2000, 2030);
+  const month = randomInt(0, 10);
+  const anchorDay = randomInt(1, 25);
+  const anchor = new Date(year, month, anchorDay);
+  const anchorDayName = DAY_NAMES[anchor.getDay()];
+  const nextMonthLastDay = new Date(year, month + 2, 0);
+  const targetDayName = DAY_NAMES[nextMonthLastDay.getDay()];
+  const monthName = new Date(year, month, 1).toLocaleString("en-US", { month: "long" });
+  const nextMonthName = new Date(year, month + 1, 1).toLocaleString("en-US", { month: "long" });
+  const howTo = `${fmtDate(anchor)} is a ${anchorDayName}. Counting forward to the last day of ${nextMonthName} (${fmtDate(nextMonthLastDay)}) lands on a ${targetDayName}.`;
+  const decoyDays = shuffle(DAY_NAMES.filter(d => d !== targetDayName)).slice(0, 3);
+  const candidates = shuffle([
+    { label: targetDayName, isAnswer: true, reason: null },
+    ...decoyDays.map(d => ({ label: d, isAnswer: false, reason: `counting the days carefully from ${anchorDayName} doesn't land on ${d}` })),
+  ]);
+  return { prompt: `If ${ordinal(anchorDay)} ${monthName} is a ${anchorDayName}, what day of the week will be the last day of ${nextMonthName}?`, candidates, howTo };
+}
+
+function monthStepSequenceVariant() {
+  const step = pick([2, 3, 4]);
+  const startMonth = randomInt(0, 11);
+  const idxs = [0, 1, 2, 3].map(i => (startMonth + step * i) % 12);
+  const answerIdx = (startMonth + step * 4) % 12;
+  const monthNames = idxs.map(i => MONTHS[i]);
+  const answer = MONTHS[answerIdx];
+  const howTo = `Each month in the pattern is ${step} months after the last one (wrapping from December back to January). ${monthNames.join(", ")} → ${answer}.`;
+  const decoyIdx = shuffle(Array.from({ length: 12 }, (_, i) => i).filter(i => i !== answerIdx)).slice(0, 3);
+  const candidates = shuffle([
+    { label: answer, isAnswer: true, reason: null },
+    ...decoyIdx.map(i => ({ label: MONTHS[i], isAnswer: false, reason: `isn't ${step} months after ${monthNames[3]}` })),
+  ]);
+  return { prompt: `What comes next in this pattern? ${monthNames.join(", ")}, ?`, candidates, howTo };
+}
+
+function everyNthDayCountVariant() {
+  const year = randomInt(2000, 2030);
+  const month = randomInt(0, 11);
+  const interval = pick([2, 3]);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const count = Math.ceil(daysInMonth / interval);
+  const monthName = new Date(year, month, 1).toLocaleString("en-US", { month: "long" });
+  const intervalWord = interval === 2 ? "every alternate day" : "every 3rd day";
+  const howTo = `${monthName} ${year} has ${daysInMonth} days. Starting from day 1 and repeating ${intervalWord}, that lands on ${count} separate days.`;
+  const pool = [...new Set([count - 1, count + 1, Math.floor(daysInMonth / interval)].filter(v => v > 0 && v !== count))];
+  while (pool.length < 3) pool.push(count + pool.length + 2);
+  const candidates = shuffle([
+    { label: String(count), isAnswer: true, reason: null },
+    ...pool.slice(0, 3).map(v => ({ label: String(v), isAnswer: false, reason: `doesn't match counting from day 1 through all ${daysInMonth} days of ${monthName}` })),
+  ]);
+  return { prompt: `Someone practices ${intervalWord} of ${monthName} ${year}, starting from the 1st. How many days in ${monthName} will they practice?`, candidates, howTo };
+}
+
 export function generateCalendarTimeQuestion(difficulty = "medium", index = 0) {
-  const built = pick([dateOrderingVariant, dayOfWeekVariant, () => scheduleVariant(difficulty)])();
+  const built = pick([
+    dateOrderingVariant, dayOfWeekVariant, () => scheduleVariant(difficulty),
+    backwardScheduleVariant, monthEndDayOfWeekVariant, monthStepSequenceVariant, everyNthDayCountVariant,
+  ])();
   const { prompt, candidates, howTo } = built;
   const letters = ["A", "B", "C", "D"];
   const options = candidates.map((c, i) => ({ id: letters[i], label: c.label }));

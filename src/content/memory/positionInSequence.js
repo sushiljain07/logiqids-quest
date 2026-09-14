@@ -47,8 +47,59 @@ function midpointVariant() {
   return { prompt: `Given this order of letters: ${sequence.join(" ")} — which letter sits exactly midway between "${letterA}" and "${letterB}"?`, candidates, howTo };
 }
 
+const NAMES_A = ["Anant", "Rohan", "Aditya", "Karan"];
+const NAMES_B = ["Rajesh", "Suresh", "Manish", "Dinesh"];
+
+function lineInsertSwapVariant() {
+  const totalBefore = randomInt(30, 50);
+  const nameA = pick(NAMES_A);
+  const nameB = pick(NAMES_B);
+  const posAFromLeft = randomInt(10, totalBefore - 15);
+  const posBFromRight = randomInt(10, totalBefore - posAFromLeft - 2);
+  const joinCount = randomInt(1, 4);
+  const posBFromLeftBefore = totalBefore - posBFromRight + 1;
+  const posAFromLeftAfterJoin = posAFromLeft + joinCount;
+  const posBFromLeftAfterJoin = posBFromLeftBefore + joinCount;
+  const answer = posAFromLeftAfterJoin; // B swaps into A's spot
+  const howTo = `${nameA} starts ${ordinal(posAFromLeft)} from the left, ${nameB} starts ${ordinal(posBFromRight)} from the right (${ordinal(posBFromLeftBefore)} from the left in a line of ${totalBefore}). When ${joinCount} more join at the left end, everyone's position-from-left shifts by ${joinCount}: ${nameA} is now ${ordinal(posAFromLeftAfterJoin)}, ${nameB} is now ${ordinal(posBFromLeftAfterJoin)}. After they swap, ${nameB} takes ${nameA}'s spot: position ${answer} from the left.`;
+  const pool = [...new Set([posBFromLeftAfterJoin, posAFromLeft, posAFromLeftAfterJoin + joinCount].filter(v => v > 0 && v !== answer))];
+  while (pool.length < 3) pool.push(answer + pool.length + 3);
+  const candidates = shuffle([
+    { label: String(answer), isAnswer: true, reason: null },
+    ...pool.slice(0, 3).map(v => ({ label: String(v), isAnswer: false, reason: `doesn't correctly account for both the new joiners and the swap` })),
+  ]);
+  return {
+    prompt: `There are ${totalBefore} people in a line. ${nameA} is ${ordinal(posAFromLeft)} from the left and ${nameB} is ${ordinal(posBFromRight)} from the right. ${joinCount} more people join the line at the left end. After this, ${nameA} and ${nameB} interchange their positions. Find ${nameB}'s position from the left.`,
+    candidates, howTo,
+  };
+}
+
+function maxGapVariant() {
+  const { sequence } = pickMidpointPuzzle();
+  const pairs = [];
+  let guard = 0;
+  while (pairs.length < 4 && guard < 200) {
+    guard++;
+    const i = randomInt(0, 25), j = randomInt(0, 25);
+    if (i === j) continue;
+    const key = [sequence[i], sequence[j]].sort().join("");
+    if (pairs.some(p => p.key === key)) continue;
+    pairs.push({ a: sequence[i], b: sequence[j], gap: Math.abs(i - j), key });
+  }
+  const sorted = [...pairs].sort((x, y) => y.gap - x.gap);
+  if (sorted[0].gap === sorted[1].gap) return maxGapVariant();
+  const target = sorted[0];
+  const howTo = `In this order — ${sequence.join(" ")} — counting the letters between each pair: ${pairs.map(p => `${p.a} and ${p.b} have ${p.gap - 1}`).join(", ")}. "${target.a}" and "${target.b}" have the most letters between them.`;
+  const candidates = shuffle(pairs.map(p => ({
+    label: `${p.a} and ${p.b}`,
+    isAnswer: p === target,
+    reason: p === target ? null : `has fewer letters between them than ${target.a} and ${target.b}`,
+  })));
+  return { prompt: `In this order of letters: ${sequence.join(" ")} — which of these pairs has the GREATEST number of letters between them?`, candidates, howTo };
+}
+
 export function generatePositionInSequenceQuestion(difficulty = "medium", index = 0) {
-  const built = pick([nthFromEndVariant, midpointVariant])();
+  const built = pick([nthFromEndVariant, midpointVariant, lineInsertSwapVariant, maxGapVariant])();
   const { prompt, candidates, howTo } = built;
   const letters = ["A", "B", "C", "D"];
   const options = candidates.map((c, i) => ({ id: letters[i], label: c.label }));

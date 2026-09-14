@@ -11,22 +11,26 @@ describe("generateCompoundWordQuestion", () => {
     }
   });
 
-  it("does not always make the correct option's head word the odd one out", () => {
-    const SAMPLES = 300;
+  it("does not always make the correct option's head word the odd one out (join-pair variant only)", () => {
+    const SAMPLES = 600;
+    let joinPairSamples = 0;
     let headCollisions = 0;
     for (let i = 0; i < SAMPLES; i++) {
       const q = generateCompoundWordQuestion("medium", i);
+      if (!q.prompt.startsWith("Which pair of words")) continue; // skip the stem-prefix variant
+      joinPairSamples++;
       const headOf = o => o.label.split(" + ")[0];
       const correctHead = headOf(q.options.find(o => o.id === q.answerId));
       const wrongHeads = q.options.filter(o => o.id !== q.answerId).map(headOf);
       if (wrongHeads.includes(correctHead)) headCollisions++;
     }
     // eslint-disable-next-line no-console
-    console.log("compound answer-head shared with >=1 distractor: %d / %d (%s%)",
-      headCollisions, SAMPLES, ((headCollisions / SAMPLES) * 100).toFixed(1));
+    console.log("compound answer-head shared with >=1 distractor: %d / %d join-pair samples (%s%)",
+      headCollisions, joinPairSamples, ((headCollisions / joinPairSamples) * 100).toFixed(1));
     // The old bug gave every wrong option one shared head that was never the answer's head,
-    // so this was 0/300. Random full-range sampling makes collisions common.
-    expect(headCollisions).toBeGreaterThanOrEqual(SAMPLES * 0.1);
+    // so this was 0/N. Random full-range sampling makes collisions common.
+    expect(joinPairSamples).toBeGreaterThan(100);
+    expect(headCollisions).toBeGreaterThanOrEqual(joinPairSamples * 0.1);
   });
 });
 

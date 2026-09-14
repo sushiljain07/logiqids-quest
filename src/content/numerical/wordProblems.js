@@ -81,8 +81,61 @@ function twoStepTransformVariant() {
   };
 }
 
+function netChangeVariant() {
+  const start = randomInt(2, 6);
+  const added = randomInt(1, 3);
+  const dec = randomInt(1, start);
+  const removed = added + dec;
+  const current = start - dec;
+  const item = pick(ITEMS);
+  const howTo = `Starting amount: ${start} ${item}. Adding ${added} then removing ${removed} leaves ${start} + ${added} - ${removed} = ${current}. To get back to ${start}, ${dec} more need to be put back.`;
+  const distractorPool = [dec + 1, dec - 1, added, removed].filter(v => v >= 0 && v !== dec);
+  return {
+    prompt: `A container had ${start} ${item}. Someone adds ${added} ${item} and then removes ${removed} ${item}. How many ${item} need to be put back in to return to the original amount of ${start}?`,
+    answer: dec, distractorPool, howTo,
+  };
+}
+
+function hitMissAlgebraVariant() {
+  const totalShots = randomInt(6, 10);
+  const hitReward = randomInt(2, 4);
+  const missPenalty = 1;
+  const misses = randomInt(1, Math.floor(totalShots / 2));
+  const hits = totalShots - misses;
+  const net = hits * hitReward - misses * missPenalty;
+  const howTo = `With ${hits} hits and ${misses} misses out of ${totalShots} shots: ${hits} × ${hitReward} - ${misses} × ${missPenalty} = ${net}. That's the number of misses that gives a net score of ${net}.`;
+  const distractorPool = [misses + 1, misses - 1, hits].filter(v => v >= 0 && v !== misses);
+  return {
+    prompt: `For every hit in a game, a player earns ${hitReward} points. For every miss, they lose ${missPenalty} point. After ${totalShots} shots, they have a net score of ${net}. How many shots did they miss?`,
+    answer: misses, distractorPool, howTo,
+  };
+}
+
+function reverseOperationWordedVariant() {
+  const start = randomInt(50, 300);
+  const kind = pick(["add", "sub", "double"]);
+  let end, correctDesc;
+  if (kind === "add") { const k = randomInt(10, 90); end = start + k; correctDesc = `${k} is added to the number`; }
+  else if (kind === "sub") { const k = randomInt(10, 90); end = start - k; correctDesc = `${k} is subtracted from the number`; }
+  else { end = start * 2; correctDesc = `the number is doubled`; }
+  const distractorPool = [...new Set([
+    `${randomInt(10, 90)} is added to the number`,
+    `${randomInt(10, 90)} is subtracted from the number`,
+    `the number is doubled`,
+    `${randomInt(2, 5)} is multiplied to the number`,
+  ].filter(d => d !== correctDesc))];
+  const howTo = `${start} → ${end}. "${correctDesc}" explains exactly that change.`;
+  return {
+    prompt: `A number ${start} is taken and an operation is performed on it. The result is ${end}. What operation might have been performed?`,
+    answer: correctDesc, distractorPool, howTo,
+  };
+}
+
 export function generateWordProblemQuestion(difficulty = "medium", index = 0) {
-  const built = pick([() => storyScenarioVariant(difficulty), comparisonDeductionVariant, tableLookupVariant, twoStepTransformVariant])();
+  const built = pick([
+    () => storyScenarioVariant(difficulty), comparisonDeductionVariant, tableLookupVariant, twoStepTransformVariant,
+    netChangeVariant, hitMissAlgebraVariant, reverseOperationWordedVariant,
+  ])();
   const { prompt, answer, distractorPool, howTo } = built;
   const candidatePool = [...new Set(distractorPool.map(String))].filter(v => v !== String(answer) && v !== "NaN");
   while (candidatePool.length < 3) candidatePool.push(`${answer}${candidatePool.length}x`);
