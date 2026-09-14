@@ -16,10 +16,12 @@ export default function App() {
   const [screen, setScreen] = useState(() => (loadJSON(KEYS.NAME, "") ? "skillmap" : "onboarding"));
   const [currentTopicId, setCurrentTopicId] = useState(null);
   const [soundOn, setSoundOn] = useState(true);
+  const [editingProfile, setEditingProfile] = useState(false);
 
   function changeAvatar(a) { setAvatar(a); saveJSON(KEYS.AVATAR, a); }
   function changeName(n) { setPlayerName(n); saveJSON(KEYS.NAME, n); }
-  function finishOnboarding() { setScreen("skillmap"); }
+  function finishOnboarding() { setEditingProfile(false); setScreen("skillmap"); }
+  function openEditProfile() { setEditingProfile(true); setScreen("onboarding"); }
   function openTopic(id) { setCurrentTopicId(id); setScreen("topic"); }
   function backToMap() { setScreen("skillmap"); }
 
@@ -29,8 +31,8 @@ export default function App() {
 
       {screen === "onboarding" && (
         <main className="home">
-          <AvatarPicker avatar={avatar} playerName={playerName} onChangeAvatar={changeAvatar} onChangeName={changeName} />
-          <button className="startBtn" onClick={finishOnboarding} disabled={!playerName.trim()}>Start learning!</button>
+          <AvatarPicker avatar={avatar} playerName={playerName} onChangeAvatar={changeAvatar} onChangeName={changeName} editing={editingProfile} />
+          <button className="startBtn" onClick={finishOnboarding} disabled={!playerName.trim()}>{editingProfile ? "Save" : "Start learning!"}</button>
         </main>
       )}
 
@@ -44,6 +46,7 @@ export default function App() {
           onOpenMockTest={() => setScreen("mockTest")}
           onOpenProgress={() => setScreen("progress")}
           onOpenLeaderboard={() => setScreen("leaderboard")}
+          onEditProfile={openEditProfile}
           soundOn={soundOn}
           onToggleSound={() => { stopSpeech(); setSoundOn(s => !s); }}
         />

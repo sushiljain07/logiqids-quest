@@ -14,12 +14,16 @@ import { spotThePatternTopic } from "./memory/spotThePattern.js";
 import { countTheShapesTopic } from "./visual/countTheShapes.js";
 import { hiddenFigureHuntTopic } from "./visual/hiddenFigureHunt.js";
 import { spotTheDifferenceTopic } from "./visual/spotTheDifference.js";
+import { symbolSubstitutionTopic } from "./numerical/symbolSubstitution.js";
+import { calendarTimeTopic } from "./numerical/calendarTime.js";
+import { familyRelationsTopic } from "./memory/familyRelations.js";
+import { positionInSequenceTopic } from "./memory/positionInSequence.js";
 
 export const TOPICS = [
   seriesCompletionTopic, oddOneOutTopic, analogiesTopic,
   compoundWordsTopic, whichLetterAmITopic, spellingDetectiveTopic,
-  balanceEquationTopic, greatestSmallestTopic, wordProblemsTopic,
-  codedLanguageTopic, whosFastestTopic, spotThePatternTopic,
+  balanceEquationTopic, greatestSmallestTopic, wordProblemsTopic, symbolSubstitutionTopic, calendarTimeTopic,
+  codedLanguageTopic, whosFastestTopic, spotThePatternTopic, familyRelationsTopic, positionInSequenceTopic,
   countTheShapesTopic, hiddenFigureHuntTopic, spotTheDifferenceTopic,
 ];
 

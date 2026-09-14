@@ -42,6 +42,27 @@ export function buildFanFigure(n, { width = 220, height = 220, stroke = "#25233a
   return { width, height, shapes };
 }
 
+export function countVennRegions(n) {
+  return 2 ** n - 1;
+}
+
+export function buildVennFigure(n, { width = 220, height = 220, stroke = "#25233a" } = {}) {
+  const layouts = {
+    2: [
+      { cx: 85, cy: 110, r: 70 },
+      { cx: 135, cy: 110, r: 70 },
+    ],
+    3: [
+      { cx: 90, cy: 90, r: 65 },
+      { cx: 130, cy: 90, r: 65 },
+      { cx: 110, cy: 140, r: 65 },
+    ],
+  };
+  const fills = ["#ffb38f66", "#a7d9ff66", "#c9f5c966"];
+  const shapes = layouts[n].map((c, i) => ({ type: "circle", cx: c.cx, cy: c.cy, r: c.r, fill: fills[i], stroke, strokeWidth: 2 }));
+  return { width, height, shapes };
+}
+
 export function buildDiffPair(baseShapes, changes) {
   const before = baseShapes.map(s => ({ ...s }));
   const after = baseShapes.map(s => ({ ...s }));

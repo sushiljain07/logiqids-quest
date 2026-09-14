@@ -3,10 +3,11 @@ import { CATEGORIES } from "./categories.js";
 import { TOPICS, TOPICS_BY_CATEGORY, getTopic } from "./index.js";
 
 describe("content index", () => {
-  it("has exactly 15 topics, 3 per category", () => {
-    expect(TOPICS.length).toBe(15);
+  it("has 19 topics: 3 each for analytical/verbal/visual, 5 each for numerical/memory", () => {
+    expect(TOPICS.length).toBe(19);
+    const expectedCounts = { analytical: 3, verbal: 3, visual: 3, numerical: 5, memory: 5 };
     CATEGORIES.forEach(cat => {
-      expect(TOPICS_BY_CATEGORY[cat.id].length).toBe(3);
+      expect(TOPICS_BY_CATEGORY[cat.id].length).toBe(expectedCounts[cat.id]);
       TOPICS_BY_CATEGORY[cat.id].forEach(t => expect(t.categoryId).toBe(cat.id));
     });
   });

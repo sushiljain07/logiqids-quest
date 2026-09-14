@@ -21,3 +21,15 @@ export function pick(arr) {
 export function pickN(arr, n) {
   return shuffle(arr).slice(0, n);
 }
+
+// A shuffled A-Z order plus two reference letters with an even index gap, so
+// "the letter exactly midway between them" always lands on a real letter.
+export function pickMidpointPuzzle() {
+  const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+  const sequence = shuffle(letters);
+  const gap = pick([4, 6, 8]);
+  const iA = randomInt(0, 25 - gap);
+  const iB = iA + gap;
+  const midIndex = (iA + iB) / 2;
+  return { sequence, letterA: sequence[iA], letterB: sequence[iB], midpointLetter: sequence[midIndex] };
+}

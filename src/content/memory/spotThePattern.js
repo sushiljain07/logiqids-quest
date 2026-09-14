@@ -1,7 +1,10 @@
 import { shuffle, pick, randomInt } from "../../lib/utils.js";
 
-const SYMBOL_SETS = [["🔴", "🔵"], ["⭐", "🌙", "☀️"], ["🍎", "🍌"], ["🟩", "🟦", "🟨"]];
-const EXTRA_SYMBOLS = ["⬛", "🟣", "🔺", "💠"];
+const SYMBOL_SETS = [
+  ["🔴", "🔵"], ["⭐", "🌙", "☀️"], ["🍎", "🍌"], ["🟩", "🟦", "🟨"],
+  ["🐶", "🐱", "🐭"], ["🚗", "🚲"], ["🌸", "🌵", "🍀", "🍁"], ["1", "2", "3"],
+];
+const EXTRA_SYMBOLS = ["⬛", "🟣", "🔺", "💠", "🦊", "🚌", "🌻", "9"];
 
 export function generateSpotPatternQuestion(difficulty = "medium", index = 0) {
   const set = pick(SYMBOL_SETS);

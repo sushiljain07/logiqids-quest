@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Header from "./Header.jsx";
 import QuestionCard from "./QuestionCard.jsx";
-import { TOPICS } from "../content/index.js";
+import { CATEGORIES } from "../content/categories.js";
+import { TOPICS_BY_CATEGORY } from "../content/index.js";
 import { scoreMockTest } from "../lib/scoring.js";
 import { addLeaderboardEntry } from "../lib/storage.js";
 import { shuffle } from "../lib/utils.js";
@@ -12,13 +13,22 @@ const TOTAL_MINUTES = 60;
 const DIFFICULTY_RANK = { hard: 2, medium: 1, easy: 0 };
 
 export function buildMockTestQuestions() {
-  const pool = [];
-  TOPICS.forEach(topic => {
-    pool.push(...topic.getTryTogether(), ...topic.getYourTurn(), ...topic.getYourTurn());
+  // Sample evenly PER CATEGORY (not from one flat topic pool) so the category mix stays
+  // even (7 each) regardless of how many topics a category happens to have.
+  const perCategory = Math.floor(TOTAL_QUESTIONS / CATEGORIES.length);
+  const remainder = TOTAL_QUESTIONS - perCategory * CATEGORIES.length;
+  const selected = [];
+  CATEGORIES.forEach((cat, i) => {
+    const pool = [];
+    TOPICS_BY_CATEGORY[cat.id].forEach(topic => {
+      pool.push(...topic.getTryTogether(), ...topic.getYourTurn(), ...topic.getYourTurn());
+    });
+    const count = perCategory + (i < remainder ? 1 : 0);
+    selected.push(...shuffle(pool).slice(0, count));
   });
   // Must be a uniform shuffle: a random comparator sort left the pool's trailing categories
-  // under-represented by about a third in the 35 questions drawn from the 150-question pool.
-  const shuffled = shuffle(pool).slice(0, TOTAL_QUESTIONS);
+  // under-represented by about a third in the 35 questions drawn from the pool.
+  const shuffled = shuffle(selected);
   const byDifficulty = [...shuffled].sort((a, b) => DIFFICULTY_RANK[b.difficulty] - DIFFICULTY_RANK[a.difficulty]);
   const champIds = new Set(byDifficulty.slice(0, LQ_CHAMP_COUNT).map(q => q.id));
   return shuffled.map(q => ({ ...q, isLQChamp: champIds.has(q.id) }));

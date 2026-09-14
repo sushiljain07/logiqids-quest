@@ -1,10 +1,10 @@
 import React from "react";
-import { Star, ListOrdered, Timer, BarChart3, Volume2, VolumeX } from "lucide-react";
+import { Star, ListOrdered, Timer, BarChart3, Volume2, VolumeX, UserCog } from "lucide-react";
 import { CATEGORIES } from "../content/categories.js";
 import { TOPICS_BY_CATEGORY } from "../content/index.js";
 import { isTopicEverMastered } from "../lib/scoring.js";
 
-export default function SkillMap({ progress, avatar, playerName = "", onOpenTopic, onOpenMixedPractice, onOpenMockTest, onOpenProgress, onOpenLeaderboard, soundOn = true, onToggleSound = () => {} }) {
+export default function SkillMap({ progress, avatar, playerName = "", onOpenTopic, onOpenMixedPractice, onOpenMockTest, onOpenProgress, onOpenLeaderboard, onEditProfile = () => {}, soundOn = true, onToggleSound = () => {} }) {
   return (
     <main className="skillMap">
       <div className="skillMapHero">
@@ -37,6 +37,7 @@ export default function SkillMap({ progress, avatar, playerName = "", onOpenTopi
         <button className="navChip" onClick={onOpenMockTest}><ListOrdered size={16} /> Mock Test</button>
         <button className="navChip" onClick={onOpenProgress}><BarChart3 size={16} /> My Progress</button>
         <button className="navChip" onClick={onOpenLeaderboard}><Star size={16} /> Leaderboard</button>
+        <button className="navChip" onClick={onEditProfile}><UserCog size={16} /> Edit Profile</button>
         {/* The only place to mute the spoken explanations; reachable from anywhere via Header's Home button. */}
         <button className="navChip" data-testid="soundToggle" aria-pressed={soundOn} onClick={onToggleSound}>
           {soundOn ? <><Volume2 size={16} /> Sound On</> : <><VolumeX size={16} /> Sound Off</>}

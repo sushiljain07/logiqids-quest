@@ -1,4 +1,4 @@
-import { shuffle } from "../../lib/utils.js";
+import { shuffle, randomInt } from "../../lib/utils.js";
 
 function thumb(shape) {
   return { width: 60, height: 60, shapes: [shape] };
@@ -11,14 +11,35 @@ const SHAPE_POOL = [
   { name: "star", shape: { type: "polygon", points: "140,15 146,32 164,32 150,43 155,61 140,50 125,61 130,43 116,32 134,32", fill: "#ffe08a88", stroke: "#25233a" } },
   { name: "pentagon", shape: { type: "polygon", points: "60,105 88,124 77,157 43,157 32,124", fill: "#e6c9ff88", stroke: "#25233a" } },
   { name: "diamond", shape: { type: "polygon", points: "110,115 145,150 110,185 75,150", fill: "#ffb3d988", stroke: "#25233a" } },
+  { name: "hexagon", shape: { type: "polygon", points: "130,60 155,75 155,105 130,120 105,105 105,75", fill: "#ffd0d088", stroke: "#25233a" } },
+  { name: "trapezoid", shape: { type: "polygon", points: "70,140 130,140 115,190 85,190", fill: "#d0ffe888", stroke: "#25233a" } },
+  { name: "arrow", shape: { type: "polygon", points: "40,100 90,100 90,80 130,110 90,140 90,120 40,120", fill: "#c9e0ff88", stroke: "#25233a" } },
+  { name: "cross", shape: { type: "polygon", points: "80,50 110,50 110,80 140,80 140,110 110,110 110,140 80,140 80,110 50,110 50,80 80,80", fill: "#fff0b388", stroke: "#25233a" } },
+  { name: "parallelogram", shape: { type: "polygon", points: "60,150 130,150 150,110 80,110", fill: "#e0d0ff88", stroke: "#25233a" } },
+  { name: "kite", shape: { type: "polygon", points: "120,40 150,90 120,180 90,90", fill: "#ffcfa388", stroke: "#25233a" } },
 ];
+
+function jitterShape(shape, amount = 12) {
+  const dx = randomInt(-amount, amount);
+  const dy = randomInt(-amount, amount);
+  if (shape.type === "circle") return { ...shape, cx: shape.cx + dx, cy: shape.cy + dy };
+  if (shape.type === "rect") return { ...shape, x: shape.x + dx, y: shape.y + dy };
+  if (shape.type === "polygon") {
+    const points = shape.points.split(" ").map(pair => {
+      const [x, y] = pair.split(",").map(Number);
+      return `${x + dx},${y + dy}`;
+    }).join(" ");
+    return { ...shape, points };
+  }
+  return shape;
+}
 
 function masterFigure() {
   const chosen = shuffle(SHAPE_POOL).slice(0, 4); // 3 members + 1 held out as the foreign/answer
   const members = chosen.slice(0, 3);
   const foreign = chosen[3];
   return {
-    master: { width: 200, height: 200, shapes: members.map(m => m.shape) },
+    master: { width: 200, height: 200, shapes: members.map(m => jitterShape(m.shape)) },
     memberNames: members.map(m => m.name),
     foreign,
   };

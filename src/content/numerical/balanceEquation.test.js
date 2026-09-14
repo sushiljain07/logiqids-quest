@@ -4,13 +4,19 @@ import { generateBalanceQuestion, balanceEquationTopic } from "./balanceEquation
 const OPS = { "+": (a,b)=>a+b, "-": (a,b)=>a-b, "×": (a,b)=>a*b, "÷": (a,b)=>a/b };
 
 describe("generateBalanceQuestion", () => {
-  it("the answer operator really does produce the stated result", () => {
+  it("produces a well-formed question with a unique answer (sign, column-addition, or digit-extraction variant)", () => {
     for (let i = 0; i < 40; i++) {
       const q = generateBalanceQuestion("medium", i);
-      const [a, b, result] = q.prompt.match(/-?\d+/g).map(Number);
-      const answerOp = q.options.find(o => o.id === q.answerId).label;
-      expect(OPS[answerOp](a, b)).toBe(result);
-      expect(new Set(q.options.map(o => o.label))).toEqual(new Set(["+","-","×","÷"]));
+      expect(q.options.length).toBe(4);
+      expect(q.options.map(o => o.id)).toContain(q.answerId);
+      if (q.prompt.includes("△")) {
+        const [a, b, result] = q.prompt.match(/-?\d+/g).map(Number);
+        const answerOp = q.options.find(o => o.id === q.answerId).label;
+        expect(OPS[answerOp](a, b)).toBe(result);
+        expect(new Set(q.options.map(o => o.label))).toEqual(new Set(["+", "-", "×", "÷"]));
+      } else {
+        expect(new Set(q.options.map(o => o.label)).size).toBe(4);
+      }
     }
   });
 });

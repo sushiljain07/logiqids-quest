@@ -1,20 +1,28 @@
-import { shuffle } from "../../lib/utils.js";
-import { buildGridFigure, buildFanFigure, countGridRectangles, countFanTriangles } from "../../lib/figures.js";
+import { shuffle, randomInt, pick } from "../../lib/utils.js";
+import { buildGridFigure, buildFanFigure, countGridRectangles, countFanTriangles, buildVennFigure, countVennRegions } from "../../lib/figures.js";
 
 function gridInstance(difficulty) {
-  const [rows, cols] = difficulty === "hard" ? [2, 2] : difficulty === "medium" ? [1, 3] : [1, 2];
+  const [rows, cols] = difficulty === "hard" ? [randomInt(2, 3), randomInt(2, 3)]
+    : difficulty === "medium" ? [randomInt(1, 2), randomInt(2, 3)]
+    : [1, randomInt(1, 2)];
   const answer = countGridRectangles(rows, cols);
   return { figure: buildGridFigure(rows, cols), answer, shapeWord: "rectangles", howTo: `This is a ${rows + 1}x${cols + 1}-line grid. Counting every small AND combined rectangle gives ${answer} in total.` };
 }
 
 function fanInstance(difficulty) {
-  const n = difficulty === "hard" ? 4 : difficulty === "medium" ? 3 : 2;
+  const n = difficulty === "hard" ? randomInt(4, 6) : difficulty === "medium" ? randomInt(3, 4) : randomInt(2, 3);
   const answer = countFanTriangles(n);
   return { figure: buildFanFigure(n), answer, shapeWord: "triangles", howTo: `The big triangle is split into ${n} equal slices from the top point. Counting each small triangle AND every combination of neighboring slices gives ${answer} in total.` };
 }
 
+function vennInstance(difficulty) {
+  const n = difficulty === "hard" ? 3 : 2;
+  const answer = countVennRegions(n);
+  return { figure: buildVennFigure(n), answer, shapeWord: "regions", howTo: `${n} overlapping circles divide the picture into ${answer} separate regions, including every spot where circles cross over each other.` };
+}
+
 export function generateCountShapesQuestion(difficulty = "medium", index = 0) {
-  const built = Math.random() < 0.5 ? gridInstance(difficulty) : fanInstance(difficulty);
+  const built = pick([gridInstance, fanInstance, vennInstance])(difficulty);
   const { answer, howTo, shapeWord } = built;
   const nearby = new Set([answer - 3, answer - 2, answer - 1, answer + 1, answer + 2, answer + 3].filter(v => v >= 0));
   const distractors = shuffle([...nearby]).slice(0, 3);
@@ -53,6 +61,7 @@ export const countTheShapesTopic = {
     steps: [
       { caption: "Some figures hide MORE shapes than you first see." },
       { caption: "A square split by both diagonals hides small triangles AND bigger ones made by combining them." },
+      { caption: "Overlapping circles also hide extra regions wherever they cross — count those too." },
       { caption: "Count every small shape first, then look for pairs or groups that form a bigger version of the same shape." },
       { caption: "Add the small count and the combined count together for the total." },
     ],

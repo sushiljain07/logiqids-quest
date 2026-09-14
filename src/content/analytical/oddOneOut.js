@@ -27,8 +27,23 @@ function numberVariant(difficulty) {
   return { options: shuffled, howTo, prompt: "Find the ODD one out:" };
 }
 
+function placeValueVariant() {
+  const hundreds = randomInt(2, 9);
+  const value = hundreds * 100;
+  const correctForms = [
+    { label: `${hundreds} hundred's`, ok: true },
+    { label: `${hundreds * 10} ten's`, ok: true },
+    { label: `${value} one's`, ok: true },
+  ];
+  const wrongTens = hundreds * 10 + randomInt(1, 9); // an off-by-a-bit ten's count that does NOT equal `value`
+  const values = [...correctForms.map(f => ({ label: f.label, isOdd: false })), { label: `${wrongTens} ten's`, isOdd: true }];
+  const shuffled = shuffle(values);
+  const howTo = `${hundreds} hundred's, ${hundreds * 10} ten's, and ${value} one's are all the same value: ${value}. ${wrongTens} ten's equals ${wrongTens * 10}, not ${value} — that's the odd one out.`;
+  return { options: shuffled, howTo, prompt: "Find the ODD one out (they should all stand for the same value):" };
+}
+
 export function generateOddOneOutQuestion(difficulty = "medium", index = 0) {
-  const built = Math.random() < 0.5 ? wordVariant() : numberVariant(difficulty);
+  const built = pick([wordVariant, () => numberVariant(difficulty), placeValueVariant])();
   const letters = ["A", "B", "C", "D"];
   const options = built.options.map((o, i) => ({ id: letters[i], label: o.label }));
   const answerId = letters[built.options.findIndex(o => o.isOdd)];
@@ -57,8 +72,8 @@ export const oddOneOutTopic = {
     steps: [
       { caption: "Three of the four things in a group share something in common." },
       { caption: "One thing is different — that's the odd one out!" },
+      { caption: "Sometimes the group shares a category (fruit), sometimes a math property (multiples of 5), sometimes a value in disguise (400 written as hundreds, tens, or ones)." },
       { caption: "Ask yourself: what do most of these have in common? Which one breaks that rule?" },
-      { caption: "Example: apple, mango, banana are fruits. Carrot is a vegetable — the odd one out!" },
     ],
   },
   getTryTogether: () => [0, 1].map(i => generateOddOneOutQuestion("easy", i)),
